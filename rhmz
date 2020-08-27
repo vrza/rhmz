@@ -174,7 +174,7 @@ def parse_date_from_hidmet_dom_tree(tree):
     datum = match.group(1)
     return datum
 
-def parse_weather_report_from_hidmet_dom_tree(tree, station):
+def parse_weather_report(tree, station):
     table = tree.xpath("//table/tr[td//text()[contains(., '" + station + "')]]")
     temperatura = table[0].xpath(".//td[2]//text()")[0]
     pritisak = table[0].xpath(".//td[3]//text()")[0]
@@ -204,7 +204,7 @@ def fetch_weather_report_dom_tree_from_hidmet():
     return tree
   
 
-def pretty_print(weather_data):
+def render_table(weather_data):
     # get ascii art from weather description
     _, condition, _ = weather_data[7]
     ascii_art = [''] + getAsciiArtCond(getConditionCode('sr', condition))
@@ -220,7 +220,7 @@ def pretty_print(weather_data):
          label, value, unit = weather_data[i]
          ascii_art_row = ascii_art[i] if i < len(ascii_art) else ''
          t.add_row([ascii_art_row, label, f'{value} {unit}'])
-    print(t)
+    return t.get_string()
 
 stations = {
     'pa'  : 'Палић',
@@ -250,16 +250,26 @@ stations = {
 }
 
 def get_stations_by_abbrs(abbrs):
-  return list(map(lambda x: stations[x], abbrs))
+    return list(map(lambda x: stations[x], abbrs))
 
 def get_all_stations():
-  return stations.values()
+    return stations.values()
+
+def render_tables(reports):
+    return list(map(lambda x: render_table(x), reports))
+
+def output_tables(tables):
+    for table in tables:
+        print(table)
+
+def parse_reports(hidmet_dom_tree, stations):
+    return list(map(lambda station: parse_weather_report(hidmet_dom_tree, station), stations))
 
 hidmet_dom_tree = fetch_weather_report_dom_tree_from_hidmet()
 datum = parse_date_from_hidmet_dom_tree(hidmet_dom_tree)
 print(datum)
 abbrs = sys.argv[1:] if len(sys.argv) > 1 else [ 'bg' ]
 stations = get_all_stations() if abbrs[0] == 'sve' else get_stations_by_abbrs(abbrs)
-for station in stations:
-    weather_data = parse_weather_report_from_hidmet_dom_tree(hidmet_dom_tree, station)
-    pretty_print(weather_data)
+reports = parse_reports(hidmet_dom_tree, stations)
+tables = render_tables(reports)
+output_tables(tables)
