@@ -222,19 +222,44 @@ def pretty_print(weather_data):
          t.add_row([ascii_art_row, label, f'{value} {unit}'])
     print(t)
 
-def get_station_by_abbreviation(abbr):
-  stations = {
-    'bg': 'Београд',
-    'ns': 'Нови Сад',
-    'ni': 'Ниш'
-  }
-  return stations[abbr]
+stations = {
+    'pa'  : 'Палић',
+    'so'  : 'Сомбор',
+    'ns'  : 'Нови Сад',
+    'bk'  : 'Б. Карловац',
+    'lo'  : 'Лозница',
+    'sm'  : 'С. Митровица',
+    'va'  : 'Ваљево',
+    'bg'  : 'Београд',
+    'kg'  : 'Крагујевац',
+    'sp'  : 'С. Паланка',
+    'vg'  : 'В. Градиште',
+    'cv'  : 'Црни Врх',
+    'ne'  : 'Неготин',
+    'zla' : 'Златибор',
+    'sj'  : 'Сјеница',
+    'po'  : 'Пожега',
+    'kv'  : 'Краљево',
+    'kop' : 'Копаоник',
+    'ku'  : 'Куршумлија',
+    'cu'  : 'Ћуприја',
+    'ni'  : 'Ниш',
+    'le'  : 'Лесковац',
+    'za'  : 'Зајечар',
+    'di'  : 'Димитровград'
+}
+
+def get_stations_by_abbrs(abbrs):
+  return list(map(lambda x: stations[x], abbrs))
+
+def get_all_stations():
+  return stations.values()
 
 hidmet_dom_tree = fetch_weather_report_dom_tree_from_hidmet()
 datum = parse_date_from_hidmet_dom_tree(hidmet_dom_tree)
 print(datum)
-stations = sys.argv[1:] if len(sys.argv) > 1 else [ 'bg' ]
-for abbr in stations:
-    station = get_station_by_abbreviation(abbr)
+abbrs = sys.argv[1:] if len(sys.argv) > 1 else [ 'bg' ]
+stations = get_all_stations() if abbrs[0] == 'sve' else get_stations_by_abbrs(abbrs)
+for station in stations:
     weather_data = parse_weather_report_from_hidmet_dom_tree(hidmet_dom_tree, station)
     pretty_print(weather_data)
