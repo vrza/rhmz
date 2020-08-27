@@ -159,15 +159,15 @@ def getAsciiArtCond(code):
     return codes[code]
 
 def parse_weather_from_hidmet_dom_tree(tree, station):
-    belgrade = tree.xpath("//table/tr[td//text()[contains(., '" + station + "')]]")
-    temperatura = belgrade[0].xpath(".//td[2]//text()")[0]
-    pritisak = belgrade[0].xpath(".//td[3]//text()")[0]
-    pravac_vetra = belgrade[0].xpath(".//td[4]//text()")[0]
-    brzina_vetra = belgrade[0].xpath(".//td[5]//text()")[0]
-    vlaznost = belgrade[0].xpath(".//td[6]//text()")[0]
-    subj_osecaj_t = belgrade[0].xpath(".//td[7]//text()")[0]
-    simbol = belgrade[0].xpath(".//td[8]//text()")[0]
-    opis_vremena = belgrade[0].xpath(".//td[9]//text()")[0]
+    table = tree.xpath("//table/tr[td//text()[contains(., '" + station + "')]]")
+    temperatura = table[0].xpath(".//td[2]//text()")[0]
+    pritisak = table[0].xpath(".//td[3]//text()")[0]
+    pravac_vetra = table[0].xpath(".//td[4]//text()")[0]
+    brzina_vetra = table[0].xpath(".//td[5]//text()")[0]
+    vlaznost = table[0].xpath(".//td[6]//text()")[0]
+    subj_osecaj_t = table[0].xpath(".//td[7]//text()")[0]
+    simbol = table[0].xpath(".//td[8]//text()")[0]
+    opis_vremena = table[0].xpath(".//td[9]//text()")[0]
     return [
         ( 'Станица', station, ''),
         ( 'Температура', int(temperatura.strip()), '°C' ),
