@@ -1,0 +1,209 @@
+#!/usr/bin/env python
+from lxml import html
+import requests
+from prettytable import PrettyTable
+
+def getConditionCode(language, condition):
+    mapping = {
+        'sr': {
+            'Ведро':             'CodeSunny',
+            'Претежно ведро':    'CodeMostlySunny',
+            'Делимично облачно': 'CodePartlyCloudy'
+        }
+    }
+    return mapping[language][condition];
+
+def getAsciiArtCond(code):
+    codes = {
+		'CodeUnknown': [
+			"    .-.      ",
+			"     __)     ",
+			"    (        ",
+			"     `-᾿     ",
+			"      •      ",
+		],
+		'CodeCloudy': [
+			"             ",
+			"\033[38;5;250m     .--.    \033[0m",
+			"\033[38;5;250m  .-(    ).  \033[0m",
+			"\033[38;5;250m (___.__)__) \033[0m",
+			"             ",
+		],
+		'CodeFog': [
+			"             ",
+			"\033[38;5;251m _ - _ - _ - \033[0m",
+			"\033[38;5;251m  _ - _ - _  \033[0m",
+			"\033[38;5;251m _ - _ - _ - \033[0m",
+			"             ",
+		],
+		'CodeHeavyRain': [
+			"\033[38;5;240;1m     .-.     \033[0m",
+			"\033[38;5;240;1m    (   ).   \033[0m",
+			"\033[38;5;240;1m   (___(__)  \033[0m",
+			"\033[38;5;21;1m  ‚ʻ‚ʻ‚ʻ‚ʻ   \033[0m",
+			"\033[38;5;21;1m  ‚ʻ‚ʻ‚ʻ‚ʻ   \033[0m",
+		],
+		'CodeHeavyShowers': [
+			"\033[38;5;226m _`/\"\"\033[38;5;240;1m.-.    \033[0m",
+			"\033[38;5;226m  ,\\_\033[38;5;240;1m(   ).  \033[0m",
+			"\033[38;5;226m   /\033[38;5;240;1m(___(__) \033[0m",
+			"\033[38;5;21;1m   ‚ʻ‚ʻ‚ʻ‚ʻ  \033[0m",
+			"\033[38;5;21;1m   ‚ʻ‚ʻ‚ʻ‚ʻ  \033[0m",
+		],
+		'CodeHeavySnow': [
+			"\033[38;5;240;1m     .-.     \033[0m",
+			"\033[38;5;240;1m    (   ).   \033[0m",
+			"\033[38;5;240;1m   (___(__)  \033[0m",
+			"\033[38;5;255;1m   * * * *   \033[0m",
+			"\033[38;5;255;1m  * * * *    \033[0m",
+		],
+		'CodeHeavySnowShowers': [
+			"\033[38;5;226m _`/\"\"\033[38;5;240;1m.-.    \033[0m",
+			"\033[38;5;226m  ,\\_\033[38;5;240;1m(   ).  \033[0m",
+			"\033[38;5;226m   /\033[38;5;240;1m(___(__) \033[0m",
+			"\033[38;5;255;1m    * * * *  \033[0m",
+			"\033[38;5;255;1m   * * * *   \033[0m",
+		],
+		'CodeLightRain': [
+			"\033[38;5;250m     .-.     \033[0m",
+			"\033[38;5;250m    (   ).   \033[0m",
+			"\033[38;5;250m   (___(__)  \033[0m",
+			"\033[38;5;111m    ʻ ʻ ʻ ʻ  \033[0m",
+			"\033[38;5;111m   ʻ ʻ ʻ ʻ   \033[0m",
+		],
+		'CodeLightShowers': [
+			"\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
+			"\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
+			"\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
+			"\033[38;5;111m     ʻ ʻ ʻ ʻ \033[0m",
+			"\033[38;5;111m    ʻ ʻ ʻ ʻ  \033[0m",
+		],
+		'CodeLightSleet': [
+			"\033[38;5;250m     .-.     \033[0m",
+			"\033[38;5;250m    (   ).   \033[0m",
+			"\033[38;5;250m   (___(__)  \033[0m",
+			"\033[38;5;111m    ʻ \033[38;5;255m*\033[38;5;111m ʻ \033[38;5;255m*  \033[0m",
+			"\033[38;5;255m   *\033[38;5;111m ʻ \033[38;5;255m*\033[38;5;111m ʻ   \033[0m",
+		],
+		'CodeLightSleetShowers': [
+			"\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
+			"\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
+			"\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
+			"\033[38;5;111m     ʻ \033[38;5;255m*\033[38;5;111m ʻ \033[38;5;255m* \033[0m",
+			"\033[38;5;255m    *\033[38;5;111m ʻ \033[38;5;255m*\033[38;5;111m ʻ  \033[0m",
+		],
+		'CodeLightSnow': [
+			"\033[38;5;250m     .-.     \033[0m",
+			"\033[38;5;250m    (   ).   \033[0m",
+			"\033[38;5;250m   (___(__)  \033[0m",
+			"\033[38;5;255m    *  *  *  \033[0m",
+			"\033[38;5;255m   *  *  *   \033[0m",
+		],
+		'CodeLightSnowShowers': [
+			"\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
+			"\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
+			"\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
+			"\033[38;5;255m     *  *  * \033[0m",
+			"\033[38;5;255m    *  *  *  \033[0m",
+		],
+		'CodePartlyCloudy': [
+			"\033[38;5;226m   \\  /\033[0m      ",
+			"\033[38;5;226m _ /\"\"\033[38;5;250m.-.    \033[0m",
+			"\033[38;5;226m   \\_\033[38;5;250m(   ).  \033[0m",
+			"\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
+			"             ",
+		],
+		'CodeMostlySunny': [
+			"\033[38;5;226m    \\   /    \033[0m",
+			"\033[38;5;226m     .-.     \033[0m",
+			"\033[38;5;226m  ‒ (   ) ‒  \033[0m",
+			"\033[38;5;226m     `-᾿\033[0m.",
+			"\033[38;5;226m    / \033[0m (_)",
+		],
+		'CodeSunny': [
+			"\033[38;5;226m    \\   /    \033[0m",
+			"\033[38;5;226m     .-.     \033[0m",
+			"\033[38;5;226m  ‒ (   ) ‒  \033[0m",
+			"\033[38;5;226m     `-᾿     \033[0m",
+			"\033[38;5;226m    /   \\    \033[0m",
+		],
+		'CodeThunderyHeavyRain': [
+			"\033[38;5;240;1m     .-.     \033[0m",
+			"\033[38;5;240;1m    (   ).   \033[0m",
+			"\033[38;5;240;1m   (___(__)  \033[0m",
+			"\033[38;5;21;1m  ‚ʻ\033[38;5;228;5m⚡\033[38;5;21;25mʻ‚\033[38;5;228;5m⚡\033[38;5;21;25m‚ʻ   \033[0m",
+			"\033[38;5;21;1m  ‚ʻ‚ʻ\033[38;5;228;5m⚡\033[38;5;21;25mʻ‚ʻ   \033[0m",
+		],
+		'CodeThunderyShowers': [
+			"\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
+			"\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
+			"\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
+			"\033[38;5;228;5m    ⚡\033[38;5;111;25mʻ ʻ\033[38;5;228;5m⚡\033[38;5;111;25mʻ ʻ \033[0m",
+			"\033[38;5;111m    ʻ ʻ ʻ ʻ  \033[0m",
+		],
+		'CodeThunderySnowShowers': [
+			"\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
+			"\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
+			"\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
+			"\033[38;5;255m     *\033[38;5;228;5m⚡\033[38;5;255;25m *\033[38;5;228;5m⚡\033[38;5;255;25m * \033[0m",
+			"\033[38;5;255m    *  *  *  \033[0m",
+		],
+		'CodeVeryCloudy': [
+			"             ",
+			"\033[38;5;240;1m     .--.    \033[0m",
+			"\033[38;5;240;1m  .-(    ).  \033[0m",
+			"\033[38;5;240;1m (___.__)__) \033[0m",
+			"             ",
+		]
+    }
+    return codes[code]
+
+def parse_weather_from_hidmet_dom_tree(tree, station):
+    belgrade = tree.xpath("//table/tr[td//text()[contains(., '" + station + "')]]")
+    temperatura = belgrade[0].xpath(".//td[2]//text()")[0]
+    pritisak = belgrade[0].xpath(".//td[3]//text()")[0]
+    pravac_vetra = belgrade[0].xpath(".//td[4]//text()")[0]
+    brzina_vetra = belgrade[0].xpath(".//td[5]//text()")[0]
+    vlaznost = belgrade[0].xpath(".//td[6]//text()")[0]
+    subj_osecaj_t = belgrade[0].xpath(".//td[7]//text()")[0]
+    simbol = belgrade[0].xpath(".//td[8]//text()")[0]
+    opis_vremena = belgrade[0].xpath(".//td[9]//text()")[0]
+    return [
+        ( 'Станица', station, ''),
+        ( 'Температура', int(temperatura.strip()), '°C' ),
+        ( 'Притисак', float(pritisak.strip()), 'hPa' ),
+        ( 'Правац ветра', pravac_vetra.strip(), '' ),
+        ( 'Брзина ветра', int(brzina_vetra.strip()), 'm/s' ),
+        ( 'Влажност ваздуха', int(vlaznost.strip()), '%' ),
+        ( 'Субјективни осећај', int(subj_osecaj_t.strip()), '°C' ),
+        ( 'Опис времена', opis_vremena.strip(), '' )
+    ]
+
+def fetch_weather_from_hidmet(station):
+    url = 'http://www.hidmet.gov.rs/ciril/osmotreni/index.php'
+    page = requests.get(url)
+    tree = html.fromstring(page.content)
+    return parse_weather_from_hidmet_dom_tree(tree, station)
+  
+
+def pretty_print(weather_data):
+    # get ascii art from weather description
+    _, condition, _ = weather_data[7]
+    ascii_art = [''] + getAsciiArtCond(getConditionCode('sr', condition))
+    # prepare the table
+    t = PrettyTable()
+    t.field_names = ['ascii', 'name', 'value']
+    t.header = False
+    t.align['ascii'] = 'l'
+    t.align['name'] = 'l'
+    t.align['value'] = 'l'
+    # fill table
+    for i in range(len(weather_data)):
+         label, value, unit = weather_data[i]
+         ascii_art_row = ascii_art[i] if i < len(ascii_art) else ''
+         t.add_row([ascii_art_row, label, f'{value} {unit}'])
+    print(t)
+
+station = "Београд"
+weather_data = fetch_weather_from_hidmet(station)
+pretty_print(weather_data)
