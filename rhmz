@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from lxml import html
 import requests
+import re
 from prettytable import PrettyTable
 
 def getConditionCode(language, condition):
@@ -158,7 +159,16 @@ def getAsciiArtCond(code):
     }
     return codes[code]
 
+def parse_date_from_hidmet_dom_tree(tree):
+    text = tree.xpath("//h1//text()")[0]
+    pattern = re.compile(r'^Подаци са главних метеоролошких станица:  (.*)')
+    match = pattern.search(text)
+    datum = match.group(1)
+    return datum
+
 def parse_weather_from_hidmet_dom_tree(tree, station):
+    datum = parse_date_from_hidmet_dom_tree(tree)
+    print(datum)
     table = tree.xpath("//table/tr[td//text()[contains(., '" + station + "')]]")
     temperatura = table[0].xpath(".//td[2]//text()")[0]
     pritisak = table[0].xpath(".//td[3]//text()")[0]
