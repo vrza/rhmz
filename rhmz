@@ -2,6 +2,7 @@
 from lxml import html
 import requests
 import re
+import sys
 from prettytable import PrettyTable
 
 def getConditionCode(language, condition):
@@ -159,6 +160,13 @@ def getAsciiArtCond(code):
     }
     return codes[code]
 
+def is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
 def parse_date_from_hidmet_dom_tree(tree):
     text = tree.xpath("//h1//text()")[0]
     pattern = re.compile(r'^Подаци са главних метеоролошких станица:  (.*)')
@@ -166,34 +174,34 @@ def parse_date_from_hidmet_dom_tree(tree):
     datum = match.group(1)
     return datum
 
-def parse_weather_from_hidmet_dom_tree(tree, station):
-    datum = parse_date_from_hidmet_dom_tree(tree)
-    print(datum)
+def parse_weather_report_from_hidmet_dom_tree(tree, station):
     table = tree.xpath("//table/tr[td//text()[contains(., '" + station + "')]]")
     temperatura = table[0].xpath(".//td[2]//text()")[0]
     pritisak = table[0].xpath(".//td[3]//text()")[0]
     pravac_vetra = table[0].xpath(".//td[4]//text()")[0]
-    brzina_vetra = table[0].xpath(".//td[5]//text()")[0]
+    brzina_vetra = table[0].xpath(".//td[5]//text()")[0].strip()
     vlaznost = table[0].xpath(".//td[6]//text()")[0]
     subj_osecaj_t = table[0].xpath(".//td[7]//text()")[0]
     simbol = table[0].xpath(".//td[8]//text()")[0]
     opis_vremena = table[0].xpath(".//td[9]//text()")[0]
+
     return [
         ( 'Станица', station, ''),
         ( 'Температура', int(temperatura.strip()), '°C' ),
         ( 'Притисак', float(pritisak.strip()), 'hPa' ),
         ( 'Правац ветра', pravac_vetra.strip(), '' ),
-        ( 'Брзина ветра', int(brzina_vetra.strip()), 'm/s' ),
+        ( 'Брзина ветра', int(brzina_vetra), 'm/s' ) if is_int(brzina_vetra)
+        else ( 'Брзина ветра', brzina_vetra, '' ),
         ( 'Влажност ваздуха', int(vlaznost.strip()), '%' ),
         ( 'Субјективни осећај', int(subj_osecaj_t.strip()), '°C' ),
         ( 'Опис времена', opis_vremena.strip(), '' )
     ]
 
-def fetch_weather_from_hidmet(station):
+def fetch_weather_report_dom_tree_from_hidmet():
     url = 'http://www.hidmet.gov.rs/ciril/osmotreni/index.php'
     page = requests.get(url)
     tree = html.fromstring(page.content)
-    return parse_weather_from_hidmet_dom_tree(tree, station)
+    return tree
   
 
 def pretty_print(weather_data):
@@ -214,6 +222,19 @@ def pretty_print(weather_data):
          t.add_row([ascii_art_row, label, f'{value} {unit}'])
     print(t)
 
-station = "Београд"
-weather_data = fetch_weather_from_hidmet(station)
-pretty_print(weather_data)
+def get_station_by_abbreviation(abbr):
+  stations = {
+    'bg': 'Београд',
+    'ns': 'Нови Сад',
+    'ni': 'Ниш'
+  }
+  return stations[abbr]
+
+hidmet_dom_tree = fetch_weather_report_dom_tree_from_hidmet()
+datum = parse_date_from_hidmet_dom_tree(hidmet_dom_tree)
+print(datum)
+stations = sys.argv[1:] if len(sys.argv) > 1 else [ 'bg' ]
+for abbr in stations:
+    station = get_station_by_abbreviation(abbr)
+    weather_data = parse_weather_report_from_hidmet_dom_tree(hidmet_dom_tree, station)
+    pretty_print(weather_data)
