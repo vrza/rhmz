@@ -16,7 +16,8 @@ def get_condition_code(language, condition):
             'Магла':             'CodeFog',
             'Ведро':             'CodeSunny',
             'Претежно ведро':    'CodeMostlySunny',
-            'Делимично облачно': 'CodePartlyCloudy'
+            'Делимично облачно': 'CodePartlyCloudy',
+            'Претежно облачно':  'CodeMostlyCloudy'
         }
     }
     return mapping[language][condition]
@@ -36,6 +37,13 @@ def get_ascii_art_cond(code):
             "\033[38;5;250m     .--.    \033[0m",
             "\033[38;5;250m  .-(    ).  \033[0m",
             "\033[38;5;250m (___.__)__) \033[0m",
+            "             ",
+        ],
+        'CodeMostlyCloudy': [
+            "\033[38;5;226m   \\  /\033[0m      ",
+            "\033[38;5;226m _ /\"\033[38;5;250m.--.    \033[0m",
+            "\033[38;5;226m   \\\033[38;5;250m(    ).  \033[0m",
+            "\033[38;5;250m   (__._(__) \033[0m",
             "             ",
         ],
         'CodeFog': [
