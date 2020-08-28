@@ -323,7 +323,8 @@ print('Подаци са главних метеоролошких станиц�
 date_line = parse_date_from_hidmet_dom_tree(hidmet_dom_tree)
 print(date_line)
 abbrs = sys.argv[1:] if len(sys.argv) > 1 else ['bg']
-station_names = STATIONS.values() if abbrs[0] == 'sve' else get_stations_by_abbrs(abbrs)
+station_names = STATIONS.values() if abbrs[0] == 'sve' \
+                else get_stations_by_abbrs(abbrs)
 reports = parse_reports(hidmet_dom_tree, station_names)
 tables = render_tables(reports)
 
