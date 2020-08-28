@@ -1,13 +1,13 @@
 #!/usr/bin/env python
-from lxml import html
-import requests
 from math import ceil, floor
 import os
 import re
 import sys
+from lxml import html
+import requests
 from prettytable import PrettyTable
 
-def getConditionCode(language, condition):
+def get_condition_code(language, condition):
     mapping = {
         'sr': {
             'Магла':             'CodeFog',
@@ -16,156 +16,156 @@ def getConditionCode(language, condition):
             'Делимично облачно': 'CodePartlyCloudy'
         }
     }
-    return mapping[language][condition];
+    return mapping[language][condition]
 
-def getAsciiArtCond(code):
+def get_ascii_art_cond(code):
     codes = {
         'CodeUnknown': [
-                "    .-.      ",
-                "     __)     ",
-                "    (        ",
-                "     `-᾿     ",
-                "      •      ",
+            "    .-.      ",
+            "     __)     ",
+            "    (        ",
+            "     `-᾿     ",
+            "      •      ",
         ],
         'CodeCloudy': [
-                "             ",
-                "\033[38;5;250m     .--.    \033[0m",
-                "\033[38;5;250m  .-(    ).  \033[0m",
-                "\033[38;5;250m (___.__)__) \033[0m",
-                "             ",
+            "             ",
+            "\033[38;5;250m     .--.    \033[0m",
+            "\033[38;5;250m  .-(    ).  \033[0m",
+            "\033[38;5;250m (___.__)__) \033[0m",
+            "             ",
         ],
         'CodeFog': [
-                "             ",
-                "\033[38;5;251m _ - _ - _ - \033[0m",
-                "\033[38;5;251m  _ - _ - _  \033[0m",
-                "\033[38;5;251m _ - _ - _ - \033[0m",
-                "             ",
+            "             ",
+            "\033[38;5;251m _ - _ - _ - \033[0m",
+            "\033[38;5;251m  _ - _ - _  \033[0m",
+            "\033[38;5;251m _ - _ - _ - \033[0m",
+            "             ",
         ],
         'CodeHeavyRain': [
-                "\033[38;5;240;1m     .-.     \033[0m",
-                "\033[38;5;240;1m    (   ).   \033[0m",
-                "\033[38;5;240;1m   (___(__)  \033[0m",
-                "\033[38;5;21;1m  ‚ʻ‚ʻ‚ʻ‚ʻ   \033[0m",
-                "\033[38;5;21;1m  ‚ʻ‚ʻ‚ʻ‚ʻ   \033[0m",
+            "\033[38;5;240;1m     .-.     \033[0m",
+            "\033[38;5;240;1m    (   ).   \033[0m",
+            "\033[38;5;240;1m   (___(__)  \033[0m",
+            "\033[38;5;21;1m  ‚ʻ‚ʻ‚ʻ‚ʻ   \033[0m",
+            "\033[38;5;21;1m  ‚ʻ‚ʻ‚ʻ‚ʻ   \033[0m",
         ],
         'CodeHeavyShowers': [
-                "\033[38;5;226m _`/\"\"\033[38;5;240;1m.-.    \033[0m",
-                "\033[38;5;226m  ,\\_\033[38;5;240;1m(   ).  \033[0m",
-                "\033[38;5;226m   /\033[38;5;240;1m(___(__) \033[0m",
-                "\033[38;5;21;1m   ‚ʻ‚ʻ‚ʻ‚ʻ  \033[0m",
-                "\033[38;5;21;1m   ‚ʻ‚ʻ‚ʻ‚ʻ  \033[0m",
+            "\033[38;5;226m _`/\"\"\033[38;5;240;1m.-.    \033[0m",
+            "\033[38;5;226m  ,\\_\033[38;5;240;1m(   ).  \033[0m",
+            "\033[38;5;226m   /\033[38;5;240;1m(___(__) \033[0m",
+            "\033[38;5;21;1m   ‚ʻ‚ʻ‚ʻ‚ʻ  \033[0m",
+            "\033[38;5;21;1m   ‚ʻ‚ʻ‚ʻ‚ʻ  \033[0m",
         ],
         'CodeHeavySnow': [
-                "\033[38;5;240;1m     .-.     \033[0m",
-                "\033[38;5;240;1m    (   ).   \033[0m",
-                "\033[38;5;240;1m   (___(__)  \033[0m",
-                "\033[38;5;255;1m   * * * *   \033[0m",
-                "\033[38;5;255;1m  * * * *    \033[0m",
+            "\033[38;5;240;1m     .-.     \033[0m",
+            "\033[38;5;240;1m    (   ).   \033[0m",
+            "\033[38;5;240;1m   (___(__)  \033[0m",
+            "\033[38;5;255;1m   * * * *   \033[0m",
+            "\033[38;5;255;1m  * * * *    \033[0m",
         ],
         'CodeHeavySnowShowers': [
-                "\033[38;5;226m _`/\"\"\033[38;5;240;1m.-.    \033[0m",
-                "\033[38;5;226m  ,\\_\033[38;5;240;1m(   ).  \033[0m",
-                "\033[38;5;226m   /\033[38;5;240;1m(___(__) \033[0m",
-                "\033[38;5;255;1m    * * * *  \033[0m",
-                "\033[38;5;255;1m   * * * *   \033[0m",
+            "\033[38;5;226m _`/\"\"\033[38;5;240;1m.-.    \033[0m",
+            "\033[38;5;226m  ,\\_\033[38;5;240;1m(   ).  \033[0m",
+            "\033[38;5;226m   /\033[38;5;240;1m(___(__) \033[0m",
+            "\033[38;5;255;1m    * * * *  \033[0m",
+            "\033[38;5;255;1m   * * * *   \033[0m",
         ],
         'CodeLightRain': [
-                "\033[38;5;250m     .-.     \033[0m",
-                "\033[38;5;250m    (   ).   \033[0m",
-                "\033[38;5;250m   (___(__)  \033[0m",
-                "\033[38;5;111m    ʻ ʻ ʻ ʻ  \033[0m",
-                "\033[38;5;111m   ʻ ʻ ʻ ʻ   \033[0m",
+            "\033[38;5;250m     .-.     \033[0m",
+            "\033[38;5;250m    (   ).   \033[0m",
+            "\033[38;5;250m   (___(__)  \033[0m",
+            "\033[38;5;111m    ʻ ʻ ʻ ʻ  \033[0m",
+            "\033[38;5;111m   ʻ ʻ ʻ ʻ   \033[0m",
         ],
         'CodeLightShowers': [
-                "\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
-                "\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
-                "\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
-                "\033[38;5;111m     ʻ ʻ ʻ ʻ \033[0m",
-                "\033[38;5;111m    ʻ ʻ ʻ ʻ  \033[0m",
+            "\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
+            "\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
+            "\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
+            "\033[38;5;111m     ʻ ʻ ʻ ʻ \033[0m",
+            "\033[38;5;111m    ʻ ʻ ʻ ʻ  \033[0m",
         ],
         'CodeLightSleet': [
-                "\033[38;5;250m     .-.     \033[0m",
-                "\033[38;5;250m    (   ).   \033[0m",
-                "\033[38;5;250m   (___(__)  \033[0m",
-                "\033[38;5;111m    ʻ \033[38;5;255m*\033[38;5;111m ʻ \033[38;5;255m*  \033[0m",
-                "\033[38;5;255m   *\033[38;5;111m ʻ \033[38;5;255m*\033[38;5;111m ʻ   \033[0m",
+            "\033[38;5;250m     .-.     \033[0m",
+            "\033[38;5;250m    (   ).   \033[0m",
+            "\033[38;5;250m   (___(__)  \033[0m",
+            "\033[38;5;111m    ʻ \033[38;5;255m*\033[38;5;111m ʻ \033[38;5;255m*  \033[0m",
+            "\033[38;5;255m   *\033[38;5;111m ʻ \033[38;5;255m*\033[38;5;111m ʻ   \033[0m",
         ],
         'CodeLightSleetShowers': [
-                "\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
-                "\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
-                "\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
-                "\033[38;5;111m     ʻ \033[38;5;255m*\033[38;5;111m ʻ \033[38;5;255m* \033[0m",
-                "\033[38;5;255m    *\033[38;5;111m ʻ \033[38;5;255m*\033[38;5;111m ʻ  \033[0m",
+            "\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
+            "\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
+            "\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
+            "\033[38;5;111m     ʻ \033[38;5;255m*\033[38;5;111m ʻ \033[38;5;255m* \033[0m",
+            "\033[38;5;255m    *\033[38;5;111m ʻ \033[38;5;255m*\033[38;5;111m ʻ  \033[0m",
         ],
         'CodeLightSnow': [
-                "\033[38;5;250m     .-.     \033[0m",
-                "\033[38;5;250m    (   ).   \033[0m",
-                "\033[38;5;250m   (___(__)  \033[0m",
-                "\033[38;5;255m    *  *  *  \033[0m",
-                "\033[38;5;255m   *  *  *   \033[0m",
+            "\033[38;5;250m     .-.     \033[0m",
+            "\033[38;5;250m    (   ).   \033[0m",
+            "\033[38;5;250m   (___(__)  \033[0m",
+            "\033[38;5;255m    *  *  *  \033[0m",
+            "\033[38;5;255m   *  *  *   \033[0m",
         ],
         'CodeLightSnowShowers': [
-                "\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
-                "\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
-                "\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
-                "\033[38;5;255m     *  *  * \033[0m",
-                "\033[38;5;255m    *  *  *  \033[0m",
+            "\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
+            "\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
+            "\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
+            "\033[38;5;255m     *  *  * \033[0m",
+            "\033[38;5;255m    *  *  *  \033[0m",
         ],
         'CodePartlyCloudy': [
-                "\033[38;5;226m   \\  /\033[0m      ",
-                "\033[38;5;226m _ /\"\"\033[38;5;250m.-.    \033[0m",
-                "\033[38;5;226m   \\_\033[38;5;250m(   ).  \033[0m",
-                "\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
-                "             ",
+            "\033[38;5;226m   \\  /\033[0m      ",
+            "\033[38;5;226m _ /\"\"\033[38;5;250m.-.    \033[0m",
+            "\033[38;5;226m   \\_\033[38;5;250m(   ).  \033[0m",
+            "\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
+            "             ",
         ],
         'CodeMostlySunny': [
-                "\033[38;5;226m    \\   /    \033[0m",
-                "\033[38;5;226m     .-.     \033[0m",
-                "\033[38;5;226m  ‒ (   ) ‒  \033[0m",
-                "\033[38;5;226m     `-᾿\033[0m.",
-                "\033[38;5;226m    / \033[0m (_)",
+            "\033[38;5;226m    \\   /    \033[0m",
+            "\033[38;5;226m     .-.     \033[0m",
+            "\033[38;5;226m  ‒ (   ) ‒  \033[0m",
+            "\033[38;5;226m     `-᾿\033[0m.",
+            "\033[38;5;226m    / \033[0m (_)",
         ],
         'CodeSunny': [
-                "\033[38;5;226m    \\   /    \033[0m",
-                "\033[38;5;226m     .-.     \033[0m",
-                "\033[38;5;226m  ‒ (   ) ‒  \033[0m",
-                "\033[38;5;226m     `-᾿     \033[0m",
-                "\033[38;5;226m    /   \\    \033[0m",
+            "\033[38;5;226m    \\   /    \033[0m",
+            "\033[38;5;226m     .-.     \033[0m",
+            "\033[38;5;226m  ‒ (   ) ‒  \033[0m",
+            "\033[38;5;226m     `-᾿     \033[0m",
+            "\033[38;5;226m    /   \\    \033[0m",
         ],
         'CodeThunderyHeavyRain': [
-                "\033[38;5;240;1m     .-.     \033[0m",
-                "\033[38;5;240;1m    (   ).   \033[0m",
-                "\033[38;5;240;1m   (___(__)  \033[0m",
-                "\033[38;5;21;1m  ‚ʻ\033[38;5;228;5m⚡\033[38;5;21;25mʻ‚\033[38;5;228;5m⚡\033[38;5;21;25m‚ʻ   \033[0m",
-                "\033[38;5;21;1m  ‚ʻ‚ʻ\033[38;5;228;5m⚡\033[38;5;21;25mʻ‚ʻ   \033[0m",
+            "\033[38;5;240;1m     .-.     \033[0m",
+            "\033[38;5;240;1m    (   ).   \033[0m",
+            "\033[38;5;240;1m   (___(__)  \033[0m",
+            "\033[38;5;21;1m  ‚ʻ\033[38;5;228;5m⚡\033[38;5;21;25mʻ‚\033[38;5;228;5m⚡\033[38;5;21;25m‚ʻ   \033[0m",
+            "\033[38;5;21;1m  ‚ʻ‚ʻ\033[38;5;228;5m⚡\033[38;5;21;25mʻ‚ʻ   \033[0m",
         ],
         'CodeThunderyShowers': [
-                "\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
-                "\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
-                "\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
-                "\033[38;5;228;5m    ⚡\033[38;5;111;25mʻ ʻ\033[38;5;228;5m⚡\033[38;5;111;25mʻ ʻ \033[0m",
-                "\033[38;5;111m    ʻ ʻ ʻ ʻ  \033[0m",
+            "\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
+            "\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
+            "\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
+            "\033[38;5;228;5m    ⚡\033[38;5;111;25mʻ ʻ\033[38;5;228;5m⚡\033[38;5;111;25mʻ ʻ \033[0m",
+            "\033[38;5;111m    ʻ ʻ ʻ ʻ  \033[0m",
         ],
         'CodeThunderySnowShowers': [
-                "\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
-                "\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
-                "\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
-                "\033[38;5;255m     *\033[38;5;228;5m⚡\033[38;5;255;25m *\033[38;5;228;5m⚡\033[38;5;255;25m * \033[0m",
-                "\033[38;5;255m    *  *  *  \033[0m",
+            "\033[38;5;226m _`/\"\"\033[38;5;250m.-.    \033[0m",
+            "\033[38;5;226m  ,\\_\033[38;5;250m(   ).  \033[0m",
+            "\033[38;5;226m   /\033[38;5;250m(___(__) \033[0m",
+            "\033[38;5;255m     *\033[38;5;228;5m⚡\033[38;5;255;25m *\033[38;5;228;5m⚡\033[38;5;255;25m * \033[0m",
+            "\033[38;5;255m    *  *  *  \033[0m",
         ],
         'CodeVeryCloudy': [
-                "             ",
-                "\033[38;5;240;1m     .--.    \033[0m",
-                "\033[38;5;240;1m  .-(    ).  \033[0m",
-                "\033[38;5;240;1m (___.__)__) \033[0m",
-                "             ",
+            "             ",
+            "\033[38;5;240;1m     .--.    \033[0m",
+            "\033[38;5;240;1m  .-(    ).  \033[0m",
+            "\033[38;5;240;1m (___.__)__) \033[0m",
+            "             ",
         ]
     }
     return codes[code]
 
-def is_int(s):
+def is_int(string):
     try:
-        int(s)
+        int(string)
         return True
     except ValueError:
         return False
@@ -174,8 +174,8 @@ def parse_date_from_hidmet_dom_tree(tree):
     text = tree.xpath("//h1//text()")[0]
     pattern = re.compile(r'^Подаци са главних метеоролошких станица:  (.*)')
     match = pattern.search(text)
-    datum = match.group(1)
-    return datum
+    date = match.group(1)
+    return date
 
 def parse_weather_report(tree, station):
     table = tree.xpath("//table/tr[td//text()[contains(., '" + station + "')]]")
@@ -188,15 +188,15 @@ def parse_weather_report(tree, station):
     opis_vremena = table[0].xpath(".//td[9]//text()")[0].strip()
 
     return [
-        ( 'Станица', station, ''),
-        ( 'Температура', int(temperatura), '°C' ),
-        ( 'Притисак', float(pritisak), 'hPa' ),
-        ( 'Правац ветра', pravac_vetra, '' ),
-        ( 'Брзина ветра', int(brzina_vetra), 'm/s' ) if is_int(brzina_vetra)
-        else ( 'Брзина ветра', brzina_vetra, '' ),
-        ( 'Влажност ваздуха', int(vlaznost), '%' ),
-        ( 'Субјективни осећај', int(subj_osecaj_t), '°C' ),
-        ( 'Опис времена', opis_vremena, '' )
+        ('Станица', station, ''),
+        ('Температура', int(temperatura), '°C'),
+        ('Притисак', float(pritisak), 'hPa'),
+        ('Правац ветра', pravac_vetra, ''),
+        ('Брзина ветра', int(brzina_vetra), 'm/s') if is_int(brzina_vetra)
+        else ('Брзина ветра', brzina_vetra, ''),
+        ('Влажност ваздуха', int(vlaznost), '%'),
+        ('Субјективни осећај', int(subj_osecaj_t), '°C'),
+        ('Опис времена', opis_vremena, '')
     ]
 
 def fetch_weather_report_dom_tree_from_hidmet():
@@ -208,24 +208,24 @@ def fetch_weather_report_dom_tree_from_hidmet():
 def render_table(weather_data, label_pad, value_pad):
     # get ascii art from weather description
     _, condition, _ = weather_data[7]
-    ascii_art = [''] + getAsciiArtCond(getConditionCode('sr', condition))
+    ascii_art = [''] + get_ascii_art_cond(get_condition_code('sr', condition))
     # prepare the table
-    t = PrettyTable()
-    t.field_names = ['ascii', 'name', 'value']
-    t.header = False
-    t.align['ascii'] = 'l'
-    t.align['name'] = 'l'
-    t.align['value'] = 'l'
+    tbl = PrettyTable()
+    tbl.field_names = ['ascii', 'name', 'value']
+    tbl.header = False
+    tbl.align['ascii'] = 'l'
+    tbl.align['name'] = 'l'
+    tbl.align['value'] = 'l'
     # fill table
     for i in range(len(weather_data)):
-         label, value, unit = weather_data[i]
-         ascii_art_row = ascii_art[i] if i < len(ascii_art) else ''
-         value_row = f'{value} {unit}'.ljust(value_pad)
-         label_row = label.ljust(label_pad)
-         t.add_row([ascii_art_row, label_row, value_row])
-    return t.get_string().splitlines()
+        label, value, unit = weather_data[i]
+        ascii_art_row = ascii_art[i] if i < len(ascii_art) else ''
+        value_row = f'{value} {unit}'.ljust(value_pad)
+        label_row = label.ljust(label_pad)
+        tbl.add_row([ascii_art_row, label_row, value_row])
+    return tbl.get_string().splitlines()
 
-stations = {
+STATIONS = {
     'pa'  : 'Палић',
     'so'  : 'Сомбор',
     'ns'  : 'Нови Сад',
@@ -253,7 +253,7 @@ stations = {
 }
 
 def get_stations_by_abbrs(abbrs):
-    return list(map(lambda x: stations[x], abbrs))
+    return list(map(lambda x: STATIONS[x], abbrs))
 
 def terminal_size():
     rows, columns = os.popen('stty size', 'r').read().split()
@@ -291,22 +291,22 @@ def output_tables(tables, term_columns):
     num_rows = ceil(len(tables) / tables_per_row)
     lines_per_table = len(tables[0])
     for row_index in range(num_rows):
-       for line_index in range(lines_per_table):
-          for cell_offset in range(tables_per_row):
+        for line_index in range(lines_per_table):
+            for cell_offset in range(tables_per_row):
                 table_index = row_index * tables_per_row + cell_offset
                 if table_index < len(tables):
-                    print(tables[table_index][line_index], end = '')
-          print()
+                    print(tables[table_index][line_index], end='')
+            print()
 
-def parse_reports(hidmet_dom_tree, stations):
-    return list(map(lambda station: parse_weather_report(hidmet_dom_tree, station), stations))
+def parse_reports(dom_tree, stations):
+    return list(map(lambda station: parse_weather_report(dom_tree, station), stations))
 
 hidmet_dom_tree = fetch_weather_report_dom_tree_from_hidmet()
 print('Подаци са главних метеоролошких станица')
-datum = parse_date_from_hidmet_dom_tree(hidmet_dom_tree)
-print(datum)
-abbrs = sys.argv[1:] if len(sys.argv) > 1 else [ 'bg' ]
-station_names = stations.values() if abbrs[0] == 'sve' else get_stations_by_abbrs(abbrs)
+date_line = parse_date_from_hidmet_dom_tree(hidmet_dom_tree)
+print(date_line)
+abbrs = sys.argv[1:] if len(sys.argv) > 1 else ['bg']
+station_names = STATIONS.values() if abbrs[0] == 'sve' else get_stations_by_abbrs(abbrs)
 reports = parse_reports(hidmet_dom_tree, station_names)
 tables = render_tables(reports)
 
