@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 from math import ceil, floor
 import os
 import re
@@ -6,6 +7,7 @@ import sys
 from lxml import html
 import requests
 from prettytable import PrettyTable
+
 
 def get_condition_code(language, condition):
     mapping = {
@@ -17,6 +19,7 @@ def get_condition_code(language, condition):
         }
     }
     return mapping[language][condition]
+
 
 def get_ascii_art_cond(code):
     codes = {
@@ -163,6 +166,7 @@ def get_ascii_art_cond(code):
     }
     return codes[code]
 
+
 def is_int(string):
     try:
         int(string)
@@ -170,12 +174,14 @@ def is_int(string):
     except ValueError:
         return False
 
+
 def parse_date_from_hidmet_dom_tree(tree):
     text = tree.xpath("//h1//text()")[0]
     pattern = re.compile(r'^Подаци са главних метеоролошких станица:  (.*)')
     match = pattern.search(text)
     date = match.group(1)
     return date
+
 
 def parse_weather_report(tree, station):
     table = tree.xpath("//table/tr[td//text()[contains(., '" + station + "')]]")
@@ -199,11 +205,13 @@ def parse_weather_report(tree, station):
         ('Опис времена', opis_vremena, '')
     ]
 
+
 def fetch_weather_report_dom_tree_from_hidmet():
     url = 'http://www.hidmet.gov.rs/ciril/osmotreni/index.php'
     page = requests.get(url)
     tree = html.fromstring(page.content)
     return tree
+
 
 def render_table(weather_data, label_pad, value_pad):
     # get ascii art from weather description
@@ -225,39 +233,43 @@ def render_table(weather_data, label_pad, value_pad):
         tbl.add_row([ascii_art_row, label_row, value_row])
     return tbl.get_string().splitlines()
 
+
 STATIONS = {
-    'pa'  : 'Палић',
-    'so'  : 'Сомбор',
-    'ns'  : 'Нови Сад',
-    'bk'  : 'Б. Карловац',
-    'lo'  : 'Лозница',
-    'sm'  : 'С. Митровица',
-    'va'  : 'Ваљево',
-    'bg'  : 'Београд',
-    'kg'  : 'Крагујевац',
-    'sp'  : 'С. Паланка',
-    'vg'  : 'В. Градиште',
-    'cv'  : 'Црни Врх',
-    'ne'  : 'Неготин',
-    'zla' : 'Златибор',
-    'sj'  : 'Сјеница',
-    'po'  : 'Пожега',
-    'kv'  : 'Краљево',
-    'kop' : 'Копаоник',
-    'ku'  : 'Куршумлија',
-    'cu'  : 'Ћуприја',
-    'ni'  : 'Ниш',
-    'le'  : 'Лесковац',
-    'za'  : 'Зајечар',
-    'di'  : 'Димитровград'
+    'pa': 'Палић',
+    'so': 'Сомбор',
+    'ns': 'Нови Сад',
+    'bk': 'Б. Карловац',
+    'lo': 'Лозница',
+    'sm': 'С. Митровица',
+    'va': 'Ваљево',
+    'bg': 'Београд',
+    'kg': 'Крагујевац',
+    'sp': 'С. Паланка',
+    'vg': 'В. Градиште',
+    'cv': 'Црни Врх',
+    'ne': 'Неготин',
+    'zla': 'Златибор',
+    'sj': 'Сјеница',
+    'po': 'Пожега',
+    'kv': 'Краљево',
+    'kop': 'Копаоник',
+    'ku': 'Куршумлија',
+    'cu': 'Ћуприја',
+    'ni': 'Ниш',
+    'le': 'Лесковац',
+    'za': 'Зајечар',
+    'di': 'Димитровград'
 }
+
 
 def get_stations_by_abbrs(abbrs):
     return list(map(lambda x: STATIONS[x], abbrs))
 
+
 def terminal_size():
     rows, columns = os.popen('stty size', 'r').read().split()
     return int(rows), int(columns)
+
 
 def max_table_column_widths(reports):
     max_label_width = 0
@@ -278,6 +290,7 @@ def render_tables(reports):
     label_pad, value_pad = max_table_column_widths(reports)
     return list(map(lambda x: render_table(x, label_pad, value_pad), reports))
 
+
 def max_table_width(tables):
     max_width = 0
     for table in tables:
@@ -285,6 +298,7 @@ def max_table_width(tables):
         if len(line) > max_width:
             max_width = len(line)
     return max_width
+
 
 def output_tables(tables, term_columns):
     tables_per_row = floor(term_columns / max_table_width(tables))
@@ -298,8 +312,11 @@ def output_tables(tables, term_columns):
                     print(tables[table_index][line_index], end='')
             print()
 
+
 def parse_reports(dom_tree, stations):
-    return list(map(lambda station: parse_weather_report(dom_tree, station), stations))
+    return list(map(
+        lambda station: parse_weather_report(dom_tree, station), stations))
+
 
 hidmet_dom_tree = fetch_weather_report_dom_tree_from_hidmet()
 print('Подаци са главних метеоролошких станица')
