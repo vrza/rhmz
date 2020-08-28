@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 from math import ceil, floor
 import os
 import re
@@ -318,13 +319,45 @@ def parse_reports(dom_tree, stations):
         lambda station: parse_weather_report(dom_tree, station), stations))
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-l", "--list",
+                        help="list all stations",
+                        action="store_true")
+    parser.add_argument("-a", "--all",
+                        help="show weather reports from all stations",
+                        action="store_true")
+    parser.add_argument('station', nargs='*', default=['bg'],
+                        help='-l shows a complete list of stations')
+    args = parser.parse_args()
+
+    if args.list:
+        for abbr in STATIONS:
+            print(f"{abbr}\t%s" % STATIONS[abbr])
+        sys.exit(0)
+
+    abbrs = []
+    for abbr in args.station:
+        if abbr in STATIONS:
+            abbrs.append(abbr)
+        else:
+            print("Unknown weather station: %s" % abbr, file=sys.stderr)
+    if len(abbrs) == 0:
+        sys.exit(1)
+
+    station_names = STATIONS.values() if args.all \
+                    else get_stations_by_abbrs(abbrs)
+    return station_names
+
+
+station_names = parse_arguments()
+
 hidmet_dom_tree = fetch_weather_report_dom_tree_from_hidmet()
+
 print('Подаци са главних метеоролошких станица')
 date_line = parse_date_from_hidmet_dom_tree(hidmet_dom_tree)
 print(date_line)
-abbrs = sys.argv[1:] if len(sys.argv) > 1 else ['bg']
-station_names = STATIONS.values() if abbrs[0] == 'sve' \
-                else get_stations_by_abbrs(abbrs)
+
 reports = parse_reports(hidmet_dom_tree, station_names)
 tables = render_tables(reports)
 
