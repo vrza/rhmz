@@ -184,7 +184,7 @@ def parse_date_from_hidmet_dom_tree(tree):
 
 
 def parse_weather_report(tree, station):
-    table = tree.xpath("//table/tr[td//text()[contains(., '" + station + "')]]")
+    table = tree.xpath("//table/tr[td//text()[contains(., '%s')]]" % station)
     temperatura = table[0].xpath(".//td[2]//text()")[0].strip()
     pritisak = table[0].xpath(".//td[3]//text()")[0].strip()
     pravac_vetra = table[0].xpath(".//td[4]//text()")[0].strip()
