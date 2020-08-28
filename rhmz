@@ -310,6 +310,8 @@ def max_table_width(tables):
 
 
 def output_tables(tables, term_columns):
+    if len(tables) == 0 or max_table_width(tables) == 0:
+        return
     tables_per_row = floor(term_columns / max_table_width(tables))
     num_rows = ceil(len(tables) / tables_per_row)
     lines_per_table = len(tables[0])
@@ -323,9 +325,13 @@ def output_tables(tables, term_columns):
 
 
 def parse_reports(dom_tree, stations):
-    return list(map(
-        lambda station: parse_weather_report(dom_tree, station), stations))
-
+    reports = []
+    for station in stations:
+        try:
+            reports.append(parse_weather_report(dom_tree, station))
+        except:
+            print("Error parsing weather for: %s" % station, sys.exc_info()[0], file=sys.stderr)
+    return reports
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
