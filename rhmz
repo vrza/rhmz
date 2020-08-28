@@ -179,25 +179,24 @@ def parse_date_from_hidmet_dom_tree(tree):
 
 def parse_weather_report(tree, station):
     table = tree.xpath("//table/tr[td//text()[contains(., '" + station + "')]]")
-    temperatura = table[0].xpath(".//td[2]//text()")[0]
-    pritisak = table[0].xpath(".//td[3]//text()")[0]
-    pravac_vetra = table[0].xpath(".//td[4]//text()")[0]
+    temperatura = table[0].xpath(".//td[2]//text()")[0].strip()
+    pritisak = table[0].xpath(".//td[3]//text()")[0].strip()
+    pravac_vetra = table[0].xpath(".//td[4]//text()")[0].strip()
     brzina_vetra = table[0].xpath(".//td[5]//text()")[0].strip()
-    vlaznost = table[0].xpath(".//td[6]//text()")[0]
-    subj_osecaj_t = table[0].xpath(".//td[7]//text()")[0]
-    simbol = table[0].xpath(".//td[8]//text()")[0]
-    opis_vremena = table[0].xpath(".//td[9]//text()")[0]
+    vlaznost = table[0].xpath(".//td[6]//text()")[0].strip()
+    subj_osecaj_t = table[0].xpath(".//td[7]//text()")[0].strip()
+    opis_vremena = table[0].xpath(".//td[9]//text()")[0].strip()
 
     return [
         ( 'Станица', station, ''),
-        ( 'Температура', int(temperatura.strip()), '°C' ),
-        ( 'Притисак', float(pritisak.strip()), 'hPa' ),
-        ( 'Правац ветра', pravac_vetra.strip(), '' ),
+        ( 'Температура', int(temperatura), '°C' ),
+        ( 'Притисак', float(pritisak), 'hPa' ),
+        ( 'Правац ветра', pravac_vetra, '' ),
         ( 'Брзина ветра', int(brzina_vetra), 'm/s' ) if is_int(brzina_vetra)
         else ( 'Брзина ветра', brzina_vetra, '' ),
-        ( 'Влажност ваздуха', int(vlaznost.strip()), '%' ),
-        ( 'Субјективни осећај', int(subj_osecaj_t.strip()), '°C' ),
-        ( 'Опис времена', opis_vremena.strip(), '' )
+        ( 'Влажност ваздуха', int(vlaznost), '%' ),
+        ( 'Субјективни осећај', int(subj_osecaj_t), '°C' ),
+        ( 'Опис времена', opis_vremena, '' )
     ]
 
 def fetch_weather_report_dom_tree_from_hidmet():
@@ -205,7 +204,6 @@ def fetch_weather_report_dom_tree_from_hidmet():
     page = requests.get(url)
     tree = html.fromstring(page.content)
     return tree
-  
 
 def render_table(weather_data, label_pad, value_pad):
     # get ascii art from weather description
@@ -257,14 +255,11 @@ stations = {
 def get_stations_by_abbrs(abbrs):
     return list(map(lambda x: stations[x], abbrs))
 
-def get_all_stations():
-    return stations.values()
-
 def terminal_size():
     rows, columns = os.popen('stty size', 'r').read().split()
     return int(rows), int(columns)
 
-def get_max_width(reports):
+def max_table_column_widths(reports):
     max_label_width = 0
     max_value_width = 0
     for report in reports:
@@ -280,7 +275,7 @@ def get_max_width(reports):
 
 
 def render_tables(reports):
-    label_pad, value_pad = get_max_width(reports)
+    label_pad, value_pad = max_table_column_widths(reports)
     return list(map(lambda x: render_table(x, label_pad, value_pad), reports))
 
 def max_table_width(tables):
@@ -291,10 +286,8 @@ def max_table_width(tables):
             max_width = len(line)
     return max_width
 
-
 def output_tables(tables, term_columns):
-    max_width = max_table_width(tables)
-    tables_per_row = floor(term_columns / max_width)
+    tables_per_row = floor(term_columns / max_table_width(tables))
     num_rows = ceil(len(tables) / tables_per_row)
     lines_per_table = len(tables[0])
     for row_index in range(num_rows):
@@ -313,8 +306,8 @@ print('Подаци са главних метеоролошких станиц�
 datum = parse_date_from_hidmet_dom_tree(hidmet_dom_tree)
 print(datum)
 abbrs = sys.argv[1:] if len(sys.argv) > 1 else [ 'bg' ]
-stations = get_all_stations() if abbrs[0] == 'sve' else get_stations_by_abbrs(abbrs)
-reports = parse_reports(hidmet_dom_tree, stations)
+station_names = stations.values() if abbrs[0] == 'sve' else get_stations_by_abbrs(abbrs)
+reports = parse_reports(hidmet_dom_tree, station_names)
 tables = render_tables(reports)
 
 _, term_columns = terminal_size()
