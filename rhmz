@@ -346,7 +346,7 @@ def parse_arguments():
         sys.exit(1)
 
     station_names = STATIONS.values() if args.all \
-                    else get_stations_by_abbrs(abbrs)
+        else get_stations_by_abbrs(abbrs)
     return station_names
 
 
