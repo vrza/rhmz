@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 from lxml import html
 import requests
+from math import ceil, floor
+import os
 import re
 import sys
 from prettytable import PrettyTable
@@ -8,6 +10,7 @@ from prettytable import PrettyTable
 def getConditionCode(language, condition):
     mapping = {
         'sr': {
+            'Магла':             'CodeFog',
             'Ведро':             'CodeSunny',
             'Претежно ведро':    'CodeMostlySunny',
             'Делимично облачно': 'CodePartlyCloudy'
@@ -204,7 +207,7 @@ def fetch_weather_report_dom_tree_from_hidmet():
     return tree
   
 
-def render_table(weather_data):
+def render_table(weather_data, label_pad, value_pad):
     # get ascii art from weather description
     _, condition, _ = weather_data[7]
     ascii_art = [''] + getAsciiArtCond(getConditionCode('sr', condition))
@@ -219,8 +222,10 @@ def render_table(weather_data):
     for i in range(len(weather_data)):
          label, value, unit = weather_data[i]
          ascii_art_row = ascii_art[i] if i < len(ascii_art) else ''
-         t.add_row([ascii_art_row, label, f'{value} {unit}'])
-    return t.get_string()
+         value_row = f'{value} {unit}'.ljust(value_pad)
+         label_row = label.ljust(label_pad)
+         t.add_row([ascii_art_row, label_row, value_row])
+    return t.get_string().splitlines()
 
 stations = {
     'pa'  : 'Палић',
@@ -255,21 +260,62 @@ def get_stations_by_abbrs(abbrs):
 def get_all_stations():
     return stations.values()
 
-def render_tables(reports):
-    return list(map(lambda x: render_table(x), reports))
+def terminal_size():
+    rows, columns = os.popen('stty size', 'r').read().split()
+    return int(rows), int(columns)
 
-def output_tables(tables):
+def get_max_width(reports):
+    max_label_width = 0
+    max_value_width = 0
+    for report in reports:
+        for item in report:
+            label, value, unit = item
+            label_width = len(label)
+            if label_width > max_label_width:
+                max_label_width = label_width
+            value_width = len(f'{value} {unit}')
+            if value_width > max_value_width:
+                max_value_width = value_width
+    return max_label_width, max_value_width
+
+
+def render_tables(reports):
+    label_pad, value_pad = get_max_width(reports)
+    return list(map(lambda x: render_table(x, label_pad, value_pad), reports))
+
+def max_table_width(tables):
+    max_width = 0
     for table in tables:
-        print(table)
+        line = table[0]
+        if len(line) > max_width:
+            max_width = len(line)
+    return max_width
+
+
+def output_tables(tables, term_columns):
+    max_width = max_table_width(tables)
+    tables_per_row = floor(term_columns / max_width)
+    num_rows = ceil(len(tables) / tables_per_row)
+    lines_per_table = len(tables[0])
+    for row_index in range(num_rows):
+       for line_index in range(lines_per_table):
+          for cell_offset in range(tables_per_row):
+                table_index = row_index * tables_per_row + cell_offset
+                if table_index < len(tables):
+                    print(tables[table_index][line_index], end = '')
+          print()
 
 def parse_reports(hidmet_dom_tree, stations):
     return list(map(lambda station: parse_weather_report(hidmet_dom_tree, station), stations))
 
 hidmet_dom_tree = fetch_weather_report_dom_tree_from_hidmet()
+print('Подаци са главних метеоролошких станица')
 datum = parse_date_from_hidmet_dom_tree(hidmet_dom_tree)
 print(datum)
 abbrs = sys.argv[1:] if len(sys.argv) > 1 else [ 'bg' ]
 stations = get_all_stations() if abbrs[0] == 'sve' else get_stations_by_abbrs(abbrs)
 reports = parse_reports(hidmet_dom_tree, stations)
 tables = render_tables(reports)
-output_tables(tables)
+
+_, term_columns = terminal_size()
+output_tables(tables, term_columns)
