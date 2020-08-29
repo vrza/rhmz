@@ -36,7 +36,7 @@ def get_weather_report_page():
 
 def parse_date(tree):
     text = tree.xpath("//h1//text()")[0]
-    pattern = re.compile(r'^Подаци са главних метеоролошких станица:  (.*)')
+    pattern = re.compile(r'^%s:  (.*)' % HEADER)
     match = pattern.search(text)
     date = match.group(1)
     return date
