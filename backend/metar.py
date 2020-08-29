@@ -27,7 +27,7 @@ def get_condition_code(cover):
 
 
 def get_json():
-    url = 'https://www.aviationweather.gov//cgi-bin/json/MetarJSON.php'
+    url = 'https://www.aviationweather.gov/cgi-bin/json/MetarJSON.php'
     response = requests.get(url)
     return response
 
