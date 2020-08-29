@@ -5,6 +5,7 @@ import sys
 
 import backend.hidmet
 import backend.metar
+import backend.metar_xml
 import frontend.terminal
 
 
@@ -27,7 +28,7 @@ def parse_arguments():
     parser_hidmet.add_argument('station', nargs='*', default=['bg'],
                                help='weather station abbreviation')
 
-    parser_metar = subparsers.add_parser('metar', help='metar backend')
+    parser_metar = subparsers.add_parser('metar', help='metar JSON backend')
     parser_metar.set_defaults(func=backend.metar.parse_args)
     parser_metar.add_argument("-l", "--list",
                               help="list all weather stations",
@@ -37,6 +38,17 @@ def parse_arguments():
                               action="store_true")
     parser_metar.add_argument('station', nargs='*', default=[],
                               help='weather station IATA id')
+
+    parser_metar_xml = subparsers.add_parser('metar_xml', help='metar XML backend')
+    parser_metar_xml.set_defaults(func=backend.metar_xml.parse_args)
+    parser_metar_xml.add_argument("-l", "--list",
+                                  help="list all weather stations",
+                                  action="store_true")
+    parser_metar_xml.add_argument("-a", "--all",
+                                  help="show weather reports from all stations",
+                                  action="store_true")
+    parser_metar_xml.add_argument('station', nargs='*', default=[],
+                                  help='weather station IATA id')
 
     args = parser.parse_args()
 
