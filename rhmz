@@ -330,19 +330,20 @@ def parse_reports(dom_tree, stations):
         try:
             reports.append(parse_weather_report(dom_tree, station))
         except:
-            print("Error parsing weather for: %s" % station, sys.exc_info()[0], file=sys.stderr)
+            print("Error parsing weather report from station: %s" % station,
+                  sys.exc_info()[0], file=sys.stderr)
     return reports
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-l", "--list",
-                        help="list all stations",
+                        help="list all weather stations",
                         action="store_true")
     parser.add_argument("-a", "--all",
                         help="show weather reports from all stations",
                         action="store_true")
     parser.add_argument('station', nargs='*', default=['bg'],
-                        help='-l shows a complete list of stations')
+                        help='weather station abbreviation')
     args = parser.parse_args()
 
     if args.list:
