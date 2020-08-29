@@ -19,6 +19,7 @@ EXIT_NETWORK_ERROR = 2
 def parse_arguments():
     parser = argparse.ArgumentParser(prog='rhmz')
     subparsers = parser.add_subparsers(help='backend selection')
+
     parser_hidmet = subparsers.add_parser('hidmet', help='hidmet backend')
     parser_hidmet.add_argument("-l", "--list",
                         help="list all weather stations",
