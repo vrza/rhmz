@@ -86,11 +86,12 @@ except Exception:
     sys.exit(EXIT_NETWORK_ERROR)
 
 hidmet_dom_tree = lxml.html.fromstring(hidmet_page.content)
-date_line = backend.hidmet.parse_date(hidmet_dom_tree)
+date = backend.hidmet.parse_date(hidmet_dom_tree)
 reports = backend.hidmet.parse_reports(hidmet_dom_tree, stations)
+header = backend.hidmet.HEADER
 
 # render and output weather reports (frontend)
 tables = frontend.terminal.render_tables(reports)
-print('Подаци са главних метеоролошких станица')
-print(date_line)
+print(header)
+print(date)
 frontend.terminal.output_tables(tables)

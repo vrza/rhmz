@@ -3,6 +3,9 @@ import sys
 import requests
 
 
+HEADER = 'Подаци са главних метеоролошких станица'
+
+
 def is_int(string):
     try:
         int(string)
