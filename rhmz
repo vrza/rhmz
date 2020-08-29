@@ -10,6 +10,11 @@ import requests
 from prettytable import PrettyTable
 
 
+EXIT_SUCCESS = 0
+EXIT_NO_KNOWN_STATIONS = 1
+EXIT_NETWORK_ERROR = 2
+
+
 def get_condition_code(language, condition):
     mapping = {
         'sr': {
@@ -348,7 +353,7 @@ def parse_arguments():
     if args.list:
         for abbr in STATIONS:
             print(f"{abbr}\t%s" % STATIONS[abbr])
-        sys.exit(0)
+        sys.exit(EXIT_SUCCESS)
 
     abbrs = []
     for abbr in args.station:
@@ -357,7 +362,7 @@ def parse_arguments():
         else:
             print("Unknown weather station: %s" % abbr, file=sys.stderr)
     if len(abbrs) == 0:
-        sys.exit(1)
+        sys.exit(EXIT_NO_KNOWN_STATIONS)
 
     station_names = STATIONS.values() if args.all \
         else get_stations_by_abbrs(abbrs)
@@ -370,7 +375,7 @@ try:
     hidmet_page = get_hidmet_weather_report_page()
 except Exception:
     print("Failed to get web page:", sys.exc_info()[1], file=sys.stderr)
-    sys.exit(2)
+    sys.exit(EXIT_NETWORK_ERROR)
 
 hidmet_dom_tree = html.fromstring(hidmet_page.content)
 
