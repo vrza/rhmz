@@ -155,10 +155,10 @@ def parse_args(args):
         print_stations_list()
         sys.exit(EXIT_SUCCESS)
 
-    abbrs = filter_known_items(args.station, STATIONS, "Unknown weather station: %s")
-    if len(abbrs) == 0:
+    valid_abbrs = filter_known_items(args.station, STATIONS, "Unknown weather station: %s")
+    if args.station and not valid_abbrs:
         sys.exit(EXIT_NO_KNOWN_STATIONS)
 
-    station_names = STATIONS.values() if args.all \
-        else get_stations_by_abbrs(abbrs)
+    station_names = STATIONS.values() if args.all or not args.station \
+        else get_stations_by_abbrs(valid_abbrs)
     return 'hidmet', station_names

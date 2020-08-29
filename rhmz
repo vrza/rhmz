@@ -25,7 +25,7 @@ def parse_arguments():
     parser_hidmet.add_argument("-a", "--all",
                                help="show weather reports from all stations",
                                action="store_true")
-    parser_hidmet.add_argument('station', nargs='*', default=['bg'],
+    parser_hidmet.add_argument('station', nargs='*', default=[],
                                help='weather station abbreviation')
 
     parser_metar = subparsers.add_parser('metar', help='metar JSON backend')
