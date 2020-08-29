@@ -15,6 +15,7 @@ def get_condition_code(cover):
         'SCT': 'CodePartlyCloudy',
         'BKN': 'CodeMostlyCloudy',
         'OVC': 'CodeCloudy',
+        'OVX': 'CodeVeryCloudy',
         'FOG': 'CodeFog',
     }
     return mapping[cover]

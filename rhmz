@@ -37,7 +37,7 @@ def parse_arguments():
     args = parser.parse_args()
 
     return args.func(args) if 'func' in args \
-        else 'hidmet', backend.hidmet.get_stations_by_abbrs(['bg'])
+        else ('hidmet', backend.hidmet.get_stations_by_abbrs(['bg']))
 
 
 selected_backend, stations = parse_arguments()
@@ -59,7 +59,7 @@ elif selected_backend == 'metar':
     header = backend.metar.HEADER
     reports = backend.metar.parse_json(response.content)
 else:
-    print("Unknown backend: %s" % backend, file=sys.stderr)
+    print("Unknown backend: %s" % selected_backend, file=sys.stderr)
     sys.exit(EXIT_UNKNOWN_BACKEND)
 
 # render and output weather reports (frontend)
