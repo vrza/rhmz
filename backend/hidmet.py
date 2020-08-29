@@ -6,6 +6,8 @@ import lxml.html
 import requests
 
 
+MODULE_NAME = 'hidmet'
+
 EXIT_SUCCESS = 0
 EXIT_NETWORK_ERROR = 2
 EXIT_NO_KNOWN_STATIONS = 11
@@ -161,4 +163,4 @@ def parse_args(args):
 
     station_names = STATIONS.values() if args.all or not args.station \
         else get_stations_by_abbrs(valid_abbrs)
-    return 'hidmet', station_names
+    return MODULE_NAME, station_names
