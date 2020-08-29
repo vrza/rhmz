@@ -181,7 +181,7 @@ def terminal_size():
     return int(rows), int(columns)
 
 
-def max_table_column_widths(reports):
+def max_column_widths(reports):
     max_label_width = 0
     max_value_width = 0
     for report in reports:
@@ -197,7 +197,7 @@ def max_table_column_widths(reports):
 
 
 def render_tables(reports):
-    label_pad, value_pad = max_table_column_widths(reports)
+    label_pad, value_pad = max_column_widths(reports)
     return list(map(lambda x: render_table(x, label_pad, value_pad), reports))
 
 
@@ -211,10 +211,11 @@ def max_table_width(tables):
 
 
 def output_tables(tables):
-    if len(tables) == 0 or max_table_width(tables) == 0:
+    width_of_table = max_table_width(tables)
+    if max_table_width == 0:
         return
-    _, term_columns = terminal_size()
-    tables_per_row = math.floor(term_columns / max_table_width(tables))
+    _, terminal_columns = terminal_size()
+    tables_per_row = math.floor(terminal_columns / width_of_table)
     num_rows = math.ceil(len(tables) / tables_per_row)
     lines_per_table = len(tables[0])
     for row_index in range(num_rows):
