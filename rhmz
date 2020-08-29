@@ -215,11 +215,10 @@ def parse_weather_report(tree, station):
     ]
 
 
-def fetch_weather_report_dom_tree_from_hidmet():
+def get_hidmet_weather_report_page():
     url = 'http://www.hidmet.gov.rs/ciril/osmotreni/index.php'
     page = requests.get(url)
-    tree = html.fromstring(page.content)
-    return tree
+    return page
 
 
 def render_table(weather_data, label_pad, value_pad):
@@ -367,7 +366,13 @@ def parse_arguments():
 
 station_names = parse_arguments()
 
-hidmet_dom_tree = fetch_weather_report_dom_tree_from_hidmet()
+try:
+    hidmet_page = get_hidmet_weather_report_page()
+except Exception:
+    print("Failed to get web page:", sys.exc_info()[1], file=sys.stderr)
+    sys.exit(2)
+
+hidmet_dom_tree = html.fromstring(hidmet_page.content)
 
 print('Подаци са главних метеоролошких станица')
 date_line = parse_date_from_hidmet_dom_tree(hidmet_dom_tree)
