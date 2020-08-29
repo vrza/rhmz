@@ -47,8 +47,8 @@ def parse_json(content):
             ident = ('IATA id', properties['id'], '')
             report['data'].append(ident)
         if 'obsTime' in properties:
-            ident = ('Obs. time', properties['obsTime'], '')
-            report['data'].append(ident)
+            obs_time = ('Obs. time', properties['obsTime'], '')
+            report['data'].append(obs_time)
         if 'temp' in properties:
             temp = ('Temperature', properties['temp'], '°C')
             report['data'].append(temp)
