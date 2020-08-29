@@ -70,6 +70,9 @@ def parse_reports(dom_tree, stations):
     for station in stations:
         try:
             reports.append(parse_weather_report(dom_tree, station))
+        except IndexError:
+            print("Недостаје извештај из метеоролошке станице %s" % station,
+                  file=sys.stderr)
         except Exception:
             print("Error parsing weather report from station: %s" % station,
                   sys.exc_info(), file=sys.stderr)
