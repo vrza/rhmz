@@ -257,7 +257,7 @@ def render_table(weather_data, label_pad, value_pad):
     # get ascii art from weather description
     _, condition, _ = weather_data[7]
     ascii_art = [''] + get_ascii_art_cond(get_condition_code('sr', condition))
-    # prepare the table
+    # prepare table
     tbl = PrettyTable()
     tbl.field_names = ['ascii', 'name', 'value']
     tbl.header = False
@@ -336,6 +336,7 @@ def parse_reports(dom_tree, stations):
             print("Error parsing weather report from station: %s" % station,
                   sys.exc_info()[0], file=sys.stderr)
     return reports
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
