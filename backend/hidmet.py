@@ -2,6 +2,8 @@ import re
 import sys
 import requests
 
+EXIT_SUCCESS = 0
+EXIT_NO_KNOWN_STATIONS = 11
 
 HEADER = 'Подаци са главних метеоролошких станица'
 
@@ -107,3 +109,36 @@ def parse_reports(dom_tree, stations):
             print("Error parsing weather report from station: %s" % station,
                   sys.exc_info(), file=sys.stderr)
     return reports
+
+
+def get_stations_by_abbrs(abbrs):
+    return list(map(lambda x: STATIONS[x], abbrs))
+
+
+def print_stations_list():
+    for abbr in STATIONS:
+        print(f"{abbr}\t%s" % STATIONS[abbr])
+
+
+def filter_known_items(requested, known, not_found_msg):
+    valid = []
+    for item in requested:
+        if item in known:
+            valid.append(item)
+        else:
+            print(not_found_msg % item, file=sys.stderr)
+    return valid
+
+
+def parse_args(args):
+    if args.list:
+        print_stations_list()
+        sys.exit(EXIT_SUCCESS)
+
+    abbrs = filter_known_items(args.station, STATIONS, "Unknown weather station: %s")
+    if len(abbrs) == 0:
+        sys.exit(EXIT_NO_KNOWN_STATIONS)
+
+    station_names = backend.hidmet.STATIONS.values() if args.all \
+        else get_stations_by_abbrs(abbrs)
+    return 'hidmet', station_names

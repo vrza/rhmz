@@ -29,7 +29,6 @@ def parse_json(content):
         report = { 'data': [] }
         properties = feature['properties']
         if 'cover' in properties:
-            print(properties['cover'])
             report['condition'] = get_condition_code(properties['cover'])
         if 'site' in properties:
             site = ('Site', properties['site'], '')
@@ -56,3 +55,7 @@ def parse_json(content):
         if 'temp' in properties:
             reports.append(report)
     return reports
+
+
+def parse_args(args):
+    return 'metar', []

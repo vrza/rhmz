@@ -12,46 +12,8 @@ import frontend.terminal
 
 
 EXIT_SUCCESS = 0
-EXIT_NO_KNOWN_STATIONS = 1
+EXIT_UNKNOWN_BACKEND = 1
 EXIT_NETWORK_ERROR = 2
-EXIT_UNKNOWN_BACKEND = 3
-
-
-def get_stations_by_abbrs(abbrs):
-    return list(map(lambda x: backend.hidmet.STATIONS[x], abbrs))
-
-
-def print_stations_list():
-    for abbr in backend.hidmet.STATIONS:
-        print(f"{abbr}\t%s" % backend.hidmet.STATIONS[abbr])
-
-
-def filter_known_items(requested, known, not_found_msg):
-    valid = []
-    for item in requested:
-        if item in known:
-            valid.append(item)
-        else:
-            print(not_found_msg % item, file=sys.stderr)
-    return valid
-
-
-def parse_metar_args(args):
-    return 'metar', []
-
-
-def parse_hidmet_args(args):
-    if args.list:
-        print_stations_list()
-        sys.exit(EXIT_SUCCESS)
-
-    abbrs = filter_known_items(args.station, backend.hidmet.STATIONS, "Unknown weather station: %s")
-    if len(abbrs) == 0:
-        sys.exit(EXIT_NO_KNOWN_STATIONS)
-
-    station_names = backend.hidmet.STATIONS.values() if args.all \
-        else get_stations_by_abbrs(abbrs)
-    return 'hidmet', station_names
 
 
 def parse_arguments():
@@ -66,17 +28,17 @@ def parse_arguments():
                         action="store_true")
     parser_hidmet.add_argument('station', nargs='*', default=['bg'],
                         help='weather station abbreviation')
-    parser_hidmet.set_defaults(func=parse_hidmet_args)
+    parser_hidmet.set_defaults(func=backend.hidmet.parse_args)
 
     parser_metar = subparsers.add_parser('metar', help='metar backend')
-    parser_metar.set_defaults(func=parse_metar_args)
+    parser_metar.set_defaults(func=backend.metar.parse_args)
 
     args = parser.parse_args()
 
     if 'func' in args:
         return args.func(args)
     else:
-        return 'hidmet', get_stations_by_abbrs(['bg'])
+        return 'hidmet', backend.hidmet.get_stations_by_abbrs(['bg'])
 
 
 selected_backend, stations = parse_arguments()
