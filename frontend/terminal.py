@@ -247,6 +247,6 @@ def output_tables(tables):
 
 def render_and_output(reports, header):
     tables = render_tables(reports)
-    if (header):
+    if header:
         print(header)
     output_tables(tables)
