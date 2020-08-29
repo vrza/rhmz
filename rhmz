@@ -45,10 +45,11 @@ STATIONS = {
 def get_condition_code(language, condition):
     mapping = {
         'sr': {
-            'Магла':             'CodeFog',
             'Ведро':             'CodeSunny',
-            'Претежно ведро':    'CodeMostlySunny',
             'Делимично облачно': 'CodePartlyCloudy',
+            'Магла':             'CodeFog',
+            'Облачно':           'CodeCloudy',
+            'Претежно ведро':    'CodeMostlySunny',
             'Претежно облачно':  'CodeMostlyCloudy'
         }
     }
@@ -378,13 +379,11 @@ except Exception:
     sys.exit(EXIT_NETWORK_ERROR)
 
 hidmet_dom_tree = html.fromstring(hidmet_page.content)
-
-print('Подаци са главних метеоролошких станица')
 date_line = parse_date_from_hidmet_dom_tree(hidmet_dom_tree)
-print(date_line)
-
 reports = parse_reports(hidmet_dom_tree, station_names)
-tables = render_tables(reports)
 
+tables = render_tables(reports)
 _, term_columns = terminal_size()
+print('Подаци са главних метеоролошких станица')
+print(date_line)
 output_tables(tables, term_columns)
