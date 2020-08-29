@@ -3,15 +3,19 @@
 import json
 import requests
 
+
+HEADER = 'METAR'
+
+
 def get_condition_code(cover):
     mapping = {
-            'CLR': 'CodeSunny',
-            'SKC': 'CodeSunny',
-            'FEW': 'CodeMostlySunny',
-            'SCT': 'CodePartlyCloudy',
-            'BKN': 'CodeMostlyCloudy',
-            'OVC': 'CodeCloudy',
-            'FOG': 'CodeFog',
+        'CLR': 'CodeSunny',
+        'SKC': 'CodeSunny',
+        'FEW': 'CodeMostlySunny',
+        'SCT': 'CodePartlyCloudy',
+        'BKN': 'CodeMostlyCloudy',
+        'OVC': 'CodeCloudy',
+        'FOG': 'CodeFog',
     }
     return mapping[cover]
 
@@ -26,7 +30,7 @@ def parse_json(content):
     weather = json.loads(content)
     reports = []
     for feature in weather['features']:
-        report = { 'data': [] }
+        report = {'data': []}
         properties = feature['properties']
         if 'cover' in properties:
             report['condition'] = get_condition_code(properties['cover'])
@@ -57,5 +61,5 @@ def parse_json(content):
     return reports
 
 
-def parse_args(args):
+def parse_args(_args):
     return 'metar', []

@@ -22,13 +22,13 @@ def parse_arguments():
 
     parser_hidmet = subparsers.add_parser('hidmet', help='hidmet backend')
     parser_hidmet.add_argument("-l", "--list",
-                        help="list all weather stations",
-                        action="store_true")
+                               help="list all weather stations",
+                               action="store_true")
     parser_hidmet.add_argument("-a", "--all",
-                        help="show weather reports from all stations",
-                        action="store_true")
+                               help="show weather reports from all stations",
+                               action="store_true")
     parser_hidmet.add_argument('station', nargs='*', default=['bg'],
-                        help='weather station abbreviation')
+                               help='weather station abbreviation')
     parser_hidmet.set_defaults(func=backend.hidmet.parse_args)
 
     parser_metar = subparsers.add_parser('metar', help='metar backend')
@@ -36,10 +36,8 @@ def parse_arguments():
 
     args = parser.parse_args()
 
-    if 'func' in args:
-        return args.func(args)
-    else:
-        return 'hidmet', backend.hidmet.get_stations_by_abbrs(['bg'])
+    return args.func(args) if 'func' in args \
+        else 'hidmet', backend.hidmet.get_stations_by_abbrs(['bg'])
 
 
 selected_backend, stations = parse_arguments()
@@ -58,11 +56,11 @@ if selected_backend == 'hidmet':
     reports = backend.hidmet.parse_reports(hidmet_dom_tree, stations)
 elif selected_backend == 'metar':
     response = backend.metar.get_json()
-    header = 'METAR'
+    header = backend.metar.HEADER
     reports = backend.metar.parse_json(response.content)
 else:
     print("Unknown backend: %s" % backend, file=sys.stderr)
-    exit(EXIT_UNKNOWN_BACKEND)
+    sys.exit(EXIT_UNKNOWN_BACKEND)
 
 # render and output weather reports (frontend)
 tables = frontend.terminal.render_tables(reports)

@@ -160,7 +160,7 @@ def get_ascii_art_cond(code):
 def pad_art(art, height):
     diff = height - len(art)
     if diff < 0:
-       return art[0:height]
+        return art[0:height]
     top_pad = math.floor(diff / 2)
     bottom_pad = math.ceil(diff / 2)
     return ['']*top_pad + art + ['']*bottom_pad

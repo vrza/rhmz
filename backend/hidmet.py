@@ -2,6 +2,7 @@ import re
 import sys
 import requests
 
+
 EXIT_SUCCESS = 0
 EXIT_NO_KNOWN_STATIONS = 11
 
@@ -139,6 +140,6 @@ def parse_args(args):
     if len(abbrs) == 0:
         sys.exit(EXIT_NO_KNOWN_STATIONS)
 
-    station_names = backend.hidmet.STATIONS.values() if args.all \
+    station_names = STATIONS.values() if args.all \
         else get_stations_by_abbrs(abbrs)
     return 'hidmet', station_names
