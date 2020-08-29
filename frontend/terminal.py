@@ -230,7 +230,7 @@ def max_table_width(tables):
 
 def output_tables(tables):
     width_of_table = max_table_width(tables)
-    if max_table_width == 0:
+    if width_of_table == 0:
         return
     _, terminal_columns = terminal_size()
     tables_per_row = math.floor(terminal_columns / width_of_table)

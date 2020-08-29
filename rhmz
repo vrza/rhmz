@@ -1,97 +1,107 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import sys
 
 import lxml.html
 
 import backend.hidmet
+import backend.metar
 import frontend.terminal
 
 
 EXIT_SUCCESS = 0
 EXIT_NO_KNOWN_STATIONS = 1
 EXIT_NETWORK_ERROR = 2
-
-STATIONS = {
-    'pa': 'Палић',
-    'so': 'Сомбор',
-    'ns': 'Нови Сад',
-    'bk': 'Б. Карловац',
-    'lo': 'Лозница',
-    'sm': 'С. Митровица',
-    'va': 'Ваљево',
-    'bg': 'Београд',
-    'kg': 'Крагујевац',
-    'sp': 'С. Паланка',
-    'vg': 'В. Градиште',
-    'cv': 'Црни Врх',
-    'ne': 'Неготин',
-    'zla': 'Златибор',
-    'sj': 'Сјеница',
-    'po': 'Пожега',
-    'kv': 'Краљево',
-    'kop': 'Копаоник',
-    'ku': 'Куршумлија',
-    'cu': 'Ћуприја',
-    'ni': 'Ниш',
-    'le': 'Лесковац',
-    'za': 'Зајечар',
-    'di': 'Димитровград'
-}
+EXIT_UNKNOWN_BACKEND = 3
 
 
 def get_stations_by_abbrs(abbrs):
-    return list(map(lambda x: STATIONS[x], abbrs))
+    return list(map(lambda x: backend.hidmet.STATIONS[x], abbrs))
 
 
-def parse_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-l", "--list",
-                        help="list all weather stations",
-                        action="store_true")
-    parser.add_argument("-a", "--all",
-                        help="show weather reports from all stations",
-                        action="store_true")
-    parser.add_argument('station', nargs='*', default=['bg'],
-                        help='weather station abbreviation')
-    args = parser.parse_args()
+def print_stations_list():
+    for abbr in backend.hidmet.STATIONS:
+        print(f"{abbr}\t%s" % backend.hidmet.STATIONS[abbr])
 
+
+def filter_known_items(requested, known, not_found_msg):
+    valid = []
+    for item in requested:
+        if item in known:
+            valid.append(item)
+        else:
+            print(not_found_msg % item, file=sys.stderr)
+    return valid
+
+
+def parse_metar_args(args):
+    return 'metar', []
+
+
+def parse_hidmet_args(args):
     if args.list:
-        for abbr in STATIONS:
-            print(f"{abbr}\t%s" % STATIONS[abbr])
+        print_stations_list()
         sys.exit(EXIT_SUCCESS)
 
-    abbrs = []
-    for abbr in args.station:
-        if abbr in STATIONS:
-            abbrs.append(abbr)
-        else:
-            print("Unknown weather station: %s" % abbr, file=sys.stderr)
+    abbrs = filter_known_items(args.station, backend.hidmet.STATIONS, "Unknown weather station: %s")
     if len(abbrs) == 0:
         sys.exit(EXIT_NO_KNOWN_STATIONS)
 
-    station_names = STATIONS.values() if args.all \
+    station_names = backend.hidmet.STATIONS.values() if args.all \
         else get_stations_by_abbrs(abbrs)
-    return station_names
+    return 'hidmet', station_names
 
 
-stations = parse_arguments()
+def parse_arguments():
+    parser = argparse.ArgumentParser(prog='rhmz')
+    subparsers = parser.add_subparsers(help='backend selection')
+    parser_hidmet = subparsers.add_parser('hidmet', help='hidmet backend')
+    parser_hidmet.add_argument("-l", "--list",
+                        help="list all weather stations",
+                        action="store_true")
+    parser_hidmet.add_argument("-a", "--all",
+                        help="show weather reports from all stations",
+                        action="store_true")
+    parser_hidmet.add_argument('station', nargs='*', default=['bg'],
+                        help='weather station abbreviation')
+    parser_hidmet.set_defaults(func=parse_hidmet_args)
+
+    parser_metar = subparsers.add_parser('metar', help='metar backend')
+    parser_metar.set_defaults(func=parse_metar_args)
+
+    args = parser.parse_args()
+
+    if 'func' in args:
+        return args.func(args)
+    else:
+        return 'hidmet', get_stations_by_abbrs(['bg'])
+
+
+selected_backend, stations = parse_arguments()
 
 # get weather reports (backend)
-try:
-    hidmet_page = backend.hidmet.get_weather_report_page()
-except Exception:
-    print("Failed to get web page:", sys.exc_info()[1], file=sys.stderr)
-    sys.exit(EXIT_NETWORK_ERROR)
+if selected_backend == 'hidmet':
+    try:
+        hidmet_page = backend.hidmet.get_weather_report_page()
+    except Exception:
+        print("Failed to get web page:", sys.exc_info()[1], file=sys.stderr)
+        sys.exit(EXIT_NETWORK_ERROR)
 
-hidmet_dom_tree = lxml.html.fromstring(hidmet_page.content)
-date = backend.hidmet.parse_date(hidmet_dom_tree)
-reports = backend.hidmet.parse_reports(hidmet_dom_tree, stations)
-header = backend.hidmet.HEADER
+    hidmet_dom_tree = lxml.html.fromstring(hidmet_page.content)
+    date = backend.hidmet.parse_date(hidmet_dom_tree)
+    header = backend.hidmet.HEADER + os.linesep + date
+    reports = backend.hidmet.parse_reports(hidmet_dom_tree, stations)
+elif selected_backend == 'metar':
+    response = backend.metar.get_json()
+    header = 'METAR'
+    reports = backend.metar.parse_json(response.content)
+else:
+    print("Unknown backend: %s" % backend, file=sys.stderr)
+    exit(EXIT_UNKNOWN_BACKEND)
 
 # render and output weather reports (frontend)
 tables = frontend.terminal.render_tables(reports)
 print(header)
-print(date)
 frontend.terminal.output_tables(tables)
