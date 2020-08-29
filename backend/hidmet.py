@@ -1,4 +1,5 @@
 import re
+import sys
 import requests
 
 
@@ -24,13 +25,13 @@ def get_condition_code(language, condition):
     return mapping[language][condition]
 
 
-def get_hidmet_weather_report_page():
+def get_weather_report_page():
     url = 'http://www.hidmet.gov.rs/ciril/osmotreni/index.php'
     page = requests.get(url)
     return page
 
 
-def parse_date_from_hidmet_dom_tree(tree):
+def parse_date(tree):
     text = tree.xpath("//h1//text()")[0]
     pattern = re.compile(r'^Подаци са главних метеоролошких станица:  (.*)')
     match = pattern.search(text)
@@ -69,7 +70,7 @@ def parse_reports(dom_tree, stations):
     for station in stations:
         try:
             reports.append(parse_weather_report(dom_tree, station))
-        except:
+        except Exception:
             print("Error parsing weather report from station: %s" % station,
-                  sys.exc_info()[0], file=sys.stderr)
+                  sys.exc_info(), file=sys.stderr)
     return reports

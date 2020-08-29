@@ -1,6 +1,7 @@
-from math import ceil, floor
+import math
 import os
-from prettytable import PrettyTable
+
+import prettytable
 
 
 def get_ascii_art_cond(code):
@@ -158,7 +159,7 @@ def get_ascii_art_cond(code):
 
 def render_table(weather_data, label_pad, value_pad):
     # prepare table
-    tbl = PrettyTable()
+    tbl = prettytable.PrettyTable()
     tbl.field_names = ['ascii', 'name', 'value']
     tbl.header = False
     tbl.align['ascii'] = 'l'
@@ -213,8 +214,8 @@ def output_tables(tables):
     if len(tables) == 0 or max_table_width(tables) == 0:
         return
     _, term_columns = terminal_size()
-    tables_per_row = floor(term_columns / max_table_width(tables))
-    num_rows = ceil(len(tables) / tables_per_row)
+    tables_per_row = math.floor(term_columns / max_table_width(tables))
+    num_rows = math.ceil(len(tables) / tables_per_row)
     lines_per_table = len(tables[0])
     for row_index in range(num_rows):
         for line_index in range(lines_per_table):
