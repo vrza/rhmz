@@ -14,6 +14,33 @@ EXIT_SUCCESS = 0
 EXIT_NO_KNOWN_STATIONS = 1
 EXIT_NETWORK_ERROR = 2
 
+STATIONS = {
+    'pa': 'Палић',
+    'so': 'Сомбор',
+    'ns': 'Нови Сад',
+    'bk': 'Б. Карловац',
+    'lo': 'Лозница',
+    'sm': 'С. Митровица',
+    'va': 'Ваљево',
+    'bg': 'Београд',
+    'kg': 'Крагујевац',
+    'sp': 'С. Паланка',
+    'vg': 'В. Градиште',
+    'cv': 'Црни Врх',
+    'ne': 'Неготин',
+    'zla': 'Златибор',
+    'sj': 'Сјеница',
+    'po': 'Пожега',
+    'kv': 'Краљево',
+    'kop': 'Копаоник',
+    'ku': 'Куршумлија',
+    'cu': 'Ћуприја',
+    'ni': 'Ниш',
+    'le': 'Лесковац',
+    'za': 'Зајечар',
+    'di': 'Димитровград'
+}
+
 
 def get_condition_code(language, condition):
     mapping = {
@@ -245,34 +272,6 @@ def render_table(weather_data, label_pad, value_pad):
         label_row = label.ljust(label_pad)
         tbl.add_row([ascii_art_row, label_row, value_row])
     return tbl.get_string().splitlines()
-
-
-STATIONS = {
-    'pa': 'Палић',
-    'so': 'Сомбор',
-    'ns': 'Нови Сад',
-    'bk': 'Б. Карловац',
-    'lo': 'Лозница',
-    'sm': 'С. Митровица',
-    'va': 'Ваљево',
-    'bg': 'Београд',
-    'kg': 'Крагујевац',
-    'sp': 'С. Паланка',
-    'vg': 'В. Градиште',
-    'cv': 'Црни Врх',
-    'ne': 'Неготин',
-    'zla': 'Златибор',
-    'sj': 'Сјеница',
-    'po': 'Пожега',
-    'kv': 'Краљево',
-    'kop': 'Копаоник',
-    'ku': 'Куршумлија',
-    'cu': 'Ћуприја',
-    'ni': 'Ниш',
-    'le': 'Лесковац',
-    'za': 'Зајечар',
-    'di': 'Димитровград'
-}
 
 
 def get_stations_by_abbrs(abbrs):
