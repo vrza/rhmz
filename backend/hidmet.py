@@ -1,9 +1,13 @@
+import os
 import re
 import sys
+
+import lxml.html
 import requests
 
 
 EXIT_SUCCESS = 0
+EXIT_NETWORK_ERROR = 2
 EXIT_NO_KNOWN_STATIONS = 11
 
 HEADER = 'Подаци са главних метеоролошких станица'
@@ -110,6 +114,21 @@ def parse_reports(dom_tree, stations):
             print("Error parsing weather report from station: %s" % station,
                   sys.exc_info(), file=sys.stderr)
     return reports
+
+
+def fetch(stations):
+    try:
+        hidmet_page = get_weather_report_page()
+    except Exception:
+        print("Failed to get hidmet.gov.rs web page:", sys.exc_info()[1], file=sys.stderr)
+        sys.exit(EXIT_NETWORK_ERROR)
+
+    hidmet_dom_tree = lxml.html.fromstring(hidmet_page.content)
+    date = parse_date(hidmet_dom_tree)
+    header = HEADER + os.linesep + date
+    reports = parse_reports(hidmet_dom_tree, stations)
+
+    return reports, header
 
 
 def get_stations_by_abbrs(abbrs):

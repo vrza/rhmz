@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import json
-import requests
 import sys
+
+import requests
 
 
 EXIT_SUCCESS = 0
+EXIT_NETWORK_ERROR = 2
 
 HEADER = 'METAR'
 
@@ -73,6 +75,20 @@ def filter_reports(all_reports, stations):
     station_set = set(map(lambda x: x.upper(), stations))
     return list(filter(lambda x: x['id'] in station_set, all_reports)) if stations \
         else all_reports
+
+
+def fetch(stations):
+    try:
+        response = get_json()
+    except Exception:
+        print("Failed to call METAR JSON API:", sys.exc_info()[1], file=sys.stderr)
+        sys.exit(EXIT_NETWORK_ERROR)
+
+    all_reports = parse_json(response.content)
+    reports = filter_reports(all_reports, stations)
+
+    return reports, HEADER
+
 
 
 def print_stations_list():

@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
 import sys
-
-import lxml.html
 
 import backend.hidmet
 import backend.metar
@@ -13,7 +10,6 @@ import frontend.terminal
 
 EXIT_SUCCESS = 0
 EXIT_UNKNOWN_BACKEND = 1
-EXIT_NETWORK_ERROR = 2
 
 
 def parse_arguments():
@@ -50,28 +46,12 @@ def parse_arguments():
 
 selected_backend, stations = parse_arguments()
 
-# get weather reports (backend)
 if selected_backend == 'hidmet':
-    try:
-        hidmet_page = backend.hidmet.get_weather_report_page()
-    except Exception:
-        print("Failed to get web page:", sys.exc_info()[1], file=sys.stderr)
-        sys.exit(EXIT_NETWORK_ERROR)
-
-    hidmet_dom_tree = lxml.html.fromstring(hidmet_page.content)
-    date = backend.hidmet.parse_date(hidmet_dom_tree)
-    header = backend.hidmet.HEADER + os.linesep + date
-    reports = backend.hidmet.parse_reports(hidmet_dom_tree, stations)
+    reports, header = backend.hidmet.fetch(stations)
 elif selected_backend == 'metar':
-    response = backend.metar.get_json()
-    header = backend.metar.HEADER
-    all_reports = backend.metar.parse_json(response.content)
-    reports = backend.metar.filter_reports(all_reports, stations)
+    reports, header = backend.metar.fetch(stations)
 else:
     print("Unknown backend: %s" % selected_backend, file=sys.stderr)
     sys.exit(EXIT_UNKNOWN_BACKEND)
 
-# render and output weather reports (frontend)
-tables = frontend.terminal.render_tables(reports)
-print(header)
-frontend.terminal.output_tables(tables)
+frontend.terminal.render_and_output(reports, header)

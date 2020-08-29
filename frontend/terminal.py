@@ -243,3 +243,10 @@ def output_tables(tables):
                 if table_index < len(tables):
                     print(tables[table_index][line_index], end='')
             print()
+
+
+def render_and_output(reports, header):
+    tables = render_tables(reports)
+    if (header):
+        print(header)
+    output_tables(tables)
