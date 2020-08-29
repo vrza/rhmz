@@ -11,8 +11,6 @@ EXIT_SUCCESS = 0
 EXIT_NETWORK_ERROR = 2
 EXIT_BAD_REQUEST = 3
 
-HEADER = 'METAR XML'
-
 
 def get_condition_code(cover):
     mapping = {
@@ -99,7 +97,7 @@ def fetch(stations):
 
     reports = parse_xml(response.content)
 
-    return reports, HEADER
+    return reports, ''
 
 
 def print_stations_list():

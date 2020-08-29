@@ -9,8 +9,6 @@ import requests
 EXIT_SUCCESS = 0
 EXIT_NETWORK_ERROR = 2
 
-HEADER = 'METAR'
-
 
 def get_condition_code(cover):
     mapping = {
@@ -29,6 +27,7 @@ def get_condition_code(cover):
 def get_json():
     url = 'https://www.aviationweather.gov/cgi-bin/json/MetarJSON.php'
     response = requests.get(url)
+    #print(response.text)
     return response
 
 
@@ -73,6 +72,10 @@ def parse_json(content):
 
 def filter_reports(all_reports, stations):
     station_set = set(map(lambda x: x.upper(), stations))
+    report_set = set(map(lambda x: x['id'], all_reports))
+    unavailable_stations = station_set.difference(report_set)
+    print("Some stations you requested are not available via this backend: %s"
+          % ",".join(unavailable_stations), file=sys.stderr)
     return list(filter(lambda x: x['id'] in station_set, all_reports)) if stations \
         else all_reports
 
@@ -87,8 +90,7 @@ def fetch(stations):
     all_reports = parse_json(response.content)
     reports = filter_reports(all_reports, stations)
 
-    return reports, HEADER
-
+    return reports, ''
 
 
 def print_stations_list():
