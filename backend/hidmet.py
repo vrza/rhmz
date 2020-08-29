@@ -161,6 +161,6 @@ def parse_args(args):
     if args.station and not valid_abbrs:
         sys.exit(EXIT_NO_KNOWN_STATIONS)
 
-    station_names = STATIONS.values() if args.all or not args.station \
+    station_names = STATIONS.values() if not args.station \
         else get_stations_by_abbrs(valid_abbrs)
     return MODULE_NAME, station_names

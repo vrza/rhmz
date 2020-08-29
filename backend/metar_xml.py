@@ -94,7 +94,7 @@ def fetch(stations):
     try:
         response = get_xml(stations)
     except Exception:
-        print("Failed to call METAR XML API:", sys.exc_info()[1], file=sys.stderr)
+        print('Call to METAR XML API failed:', sys.exc_info()[1], file=sys.stderr)
         sys.exit(EXIT_NETWORK_ERROR)
 
     reports = parse_xml(response.content)
@@ -113,5 +113,4 @@ def parse_args(args):
     if args.list:
         print_stations_list()
         sys.exit(EXIT_SUCCESS)
-    stations = [] if args.all else args.station
-    return MODULE_NAME, stations
+    return MODULE_NAME, args.station
