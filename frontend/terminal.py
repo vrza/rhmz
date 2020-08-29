@@ -157,7 +157,16 @@ def get_ascii_art_cond(code):
     return codes[code]
 
 
-def render_table(weather_data, label_pad, value_pad):
+def pad_art(art, height):
+    diff = height - len(art)
+    if diff < 0:
+       return art[0:height]
+    top_pad = math.floor(diff / 2)
+    bottom_pad = math.ceil(diff / 2)
+    return ['']*top_pad + art + ['']*bottom_pad
+
+
+def render_table(weather_data, height_pad, label_pad, value_pad):
     # prepare table
     tbl = prettytable.PrettyTable()
     tbl.field_names = ['ascii', 'name', 'value']
@@ -166,12 +175,17 @@ def render_table(weather_data, label_pad, value_pad):
     tbl.align['name'] = 'l'
     tbl.align['value'] = 'l'
     # fill table
-    ascii_art = [''] + get_ascii_art_cond(weather_data['condition'])
-    for i in range(len(weather_data['data'])):
-        label, value, unit = weather_data['data'][i]
+    cond_code = weather_data['condition'] if 'condition' in weather_data else 'CodeUnknown'
+    art = get_ascii_art_cond(cond_code)
+    ascii_art = pad_art(art, height_pad)
+    for i in range(height_pad):
+        if i < len(weather_data['data']):
+            label, value, unit = weather_data['data'][i]
+            value_row = f'{value} {unit}'.ljust(value_pad)
+            label_row = label.ljust(label_pad)
+        else:
+            value_row = label_row = ''
         ascii_art_row = ascii_art[i] if i < len(ascii_art) else ''
-        value_row = f'{value} {unit}'.ljust(value_pad)
-        label_row = label.ljust(label_pad)
         tbl.add_row([ascii_art_row, label_row, value_row])
     return tbl.get_string().splitlines()
 
@@ -181,11 +195,15 @@ def terminal_size():
     return int(rows), int(columns)
 
 
-def max_column_widths(reports):
+def table_padding(reports):
     max_label_width = 0
     max_value_width = 0
+    max_height = 0
     for report in reports:
-        for item in report['data']:
+        data = report['data']
+        if len(data) > max_height:
+            max_height = len(data)
+        for item in data:
             label, value, unit = item
             label_width = len(label)
             if label_width > max_label_width:
@@ -193,12 +211,12 @@ def max_column_widths(reports):
             value_width = len(f'{value} {unit}')
             if value_width > max_value_width:
                 max_value_width = value_width
-    return max_label_width, max_value_width
+    return max_height, max_label_width, max_value_width
 
 
 def render_tables(reports):
-    label_pad, value_pad = max_column_widths(reports)
-    return list(map(lambda x: render_table(x, label_pad, value_pad), reports))
+    height_pad, label_pad, value_pad = table_padding(reports)
+    return list(map(lambda x: render_table(x, height_pad, label_pad, value_pad), reports))
 
 
 def max_table_width(tables):
