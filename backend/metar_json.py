@@ -29,7 +29,6 @@ def get_condition_code(cover):
 def get_json():
     url = 'https://www.aviationweather.gov/cgi-bin/json/MetarJSON.php'
     response = requests.get(url)
-    #print(response.text)
     return response
 
 
@@ -41,31 +40,23 @@ def parse_json(content):
         properties = feature['properties']
         if 'site' in properties:
             report['site'] = properties['site']
-            site = ('Site', properties['site'], '')
-            report['data'].append(site)
+            report['data'].append(('Site', properties['site'], ''))
         if 'id' in properties:
             report['id'] = properties['id']
-            ident = ('IATA id', properties['id'], '')
-            report['data'].append(ident)
+            report['data'].append(('IATA id', properties['id'], ''))
         if 'obsTime' in properties:
-            obs_time = ('Obs. time', properties['obsTime'], '')
-            report['data'].append(obs_time)
+            report['data'].append(('Obs. time', properties['obsTime'], ''))
         if 'temp' in properties:
-            temp = ('Temperature', properties['temp'], '°C')
-            report['data'].append(temp)
+            report['data'].append(('Temperature', properties['temp'], '°C'))
         if 'dewp' in properties:
-            dewp = ('Dew point', properties['dewp'], '°C')
-            report['data'].append(dewp)
+            report['data'].append(('Dew point', properties['dewp'], '°C'))
         if 'wspd' in properties:
-            wspd = ('Wind speed', properties['wspd'], 'km/h')
-            report['data'].append(wspd)
+            report['data'].append(('Wind speed', properties['wspd'], 'km/h'))
         if 'wdir' in properties:
-            wdir = ('Wind direction', properties['wdir'], '°')
-            report['data'].append(wdir)
+            report['data'].append(('Wind direction', properties['wdir'], '°'))
         if 'cover' in properties:
             report['condition'] = get_condition_code(properties['cover'])
-            condition = ('Cloud cover', properties['cover'], '')
-            report['data'].append(condition)
+            report['data'].append(('Cloud cover', properties['cover'], ''))
         # sanity check
         if 'temp' in properties:
             reports.append(report)

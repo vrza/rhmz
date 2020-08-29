@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import json
 import sys
 
 import lxml.etree
@@ -40,8 +39,9 @@ def get_xml(stations):
         print('> GET %s' % url, file=sys.stderr)
         print(response.text, file=sys.stderr)
         if ids and len(ids) > 1000:
-            print('Number of stations requested (%s) might be over the GET request size limit' % len(ids), file=sys.stderr)
-        exit(EXIT_BAD_REQUEST)
+            print('Number of stations requested (%s) might be over the GET request size limit' % len(ids),
+                  file=sys.stderr)
+        sys.exit(EXIT_BAD_REQUEST)
     return response
 
 
@@ -53,28 +53,22 @@ def parse_xml(content):
         station_id = element.xpath('.//station_id//text()')
         if station_id:
             report['id'] = station_id[0]
-            ident = ('Station', station_id[0], '')
-            report['data'].append(ident)
+            report['data'].append(('Station', station_id[0], ''))
         observation_time = element.xpath('.//observation_time//text()')
         if observation_time:
-            obs_time = ('Obs. time', observation_time[0], '')
-            report['data'].append(obs_time)
+            report['data'].append(('Obs. time', observation_time[0], ''))
         temp_c = element.xpath('.//temp_c//text()')
         if temp_c:
-            temp = ('Temperature', temp_c[0], '°C')
-            report['data'].append(temp)
+            report['data'].append(('Temperature', temp_c[0], '°C'))
         dewpoint_c = element.xpath('.//dewpoint_c//text()')
         if dewpoint_c:
-            dewpoint = ('Dew point', dewpoint_c[0], '°C')
-            report['data'].append(dewpoint)
+            report['data'].append(('Dew point', dewpoint_c[0], '°C'))
         wind_dir_degrees = element.xpath('.//wind_dir_degrees//text()')
         if wind_dir_degrees:
-            wind_dir = ('Wind direction', wind_dir_degrees[0], '°')
-            report['data'].append(wind_dir)
+            report['data'].append(('Wind direction', wind_dir_degrees[0], '°'))
         wind_speed_kt = element.xpath('.//wind_speed_kt//text()')
         if wind_speed_kt:
-            wind_speed = ('Wind speed', wind_speed_kt[0], 'kn')
-            report['data'].append(wind_speed)
+            report['data'].append(('Wind speed', wind_speed_kt[0], 'kn'))
         sky_condition = element.xpath('.//sky_condition[1]')
         if sky_condition:
             sky_cover = sky_condition[0].xpath('.//@sky_cover')
@@ -84,8 +78,7 @@ def parse_xml(content):
                 cloud_base_ft_agl = sky_condition[0].xpath('.//@cloud_base_ft_agl')
                 if cloud_base_ft_agl:
                     cover += ' at %s ft' % cloud_base_ft_agl[0]
-                condition = ('Sky cover', cover, '')
-                report['data'].append(condition)
+                report['data'].append(('Sky cover', cover, ''))
         reports.append(report)
     return reports
 
