@@ -44,13 +44,13 @@ def parse_arguments():
     args = parser.parse_args()
 
     return args.func(args) if 'func' in args \
-        else ('hidmet', backend.hidmet.get_stations_by_abbrs(['bg']))
+        else ('backend.hidmet', backend.hidmet.get_stations_by_abbrs(['bg']))
 
 
 selected_backend, stations = parse_arguments()
 
 try:
-    fetch_reports = getattr(sys.modules['backend.' + selected_backend], 'fetch')
+    fetch_reports = getattr(sys.modules[selected_backend], 'fetch')
 except Exception:
     print("Cannot load backend: %s" % selected_backend, file=sys.stderr)
     print(sys.exc_info(), file=sys.stderr)

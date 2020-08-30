@@ -6,8 +6,6 @@ import lxml.etree
 import requests
 
 
-MODULE_NAME = 'metar_xml'
-
 EXIT_SUCCESS = 0
 EXIT_NETWORK_ERROR = 2
 EXIT_BAD_REQUEST = 3
@@ -106,4 +104,5 @@ def parse_args(args):
     if args.list:
         print_stations_list()
         sys.exit(EXIT_SUCCESS)
-    return MODULE_NAME, args.station
+    module_name = vars(sys.modules[__name__])['__name__']
+    return module_name, args.station
