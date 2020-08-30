@@ -51,7 +51,7 @@ def parse_xml(content):
         station_id = element.xpath('.//station_id//text()')
         if station_id:
             report['id'] = station_id[0]
-            report['data'].append(('Station', station_id[0], ''))
+            report['data'].append(('ICAO code', station_id[0], ''))
         observation_time = element.xpath('.//observation_time//text()')
         if observation_time:
             report['data'].append(('Obs. time', observation_time[0], ''))

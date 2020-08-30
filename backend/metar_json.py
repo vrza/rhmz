@@ -41,7 +41,7 @@ def parse_json(content):
             report['data'].append(('Site', properties['site'], ''))
         if 'id' in properties:
             report['id'] = properties['id']
-            report['data'].append(('IATA id', properties['id'], ''))
+            report['data'].append(('ICAO code', properties['id'], ''))
         if 'obsTime' in properties:
             report['data'].append(('Obs. time', properties['obsTime'], ''))
         if 'temp' in properties:
