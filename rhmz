@@ -17,7 +17,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(prog='rhmz')
     subparsers = parser.add_subparsers(help='backend selection')
 
-    parser_hidmet = subparsers.add_parser('hidmet', help='hidmet backend')
+    parser_hidmet = subparsers.add_parser('hidmet', help='hidmet.gov.rs backend')
     parser_hidmet.set_defaults(func=backend.hidmet.parse_args)
     parser_hidmet.add_argument("-l", "--list",
                                help="list all supported weather stations",
@@ -25,21 +25,22 @@ def parse_arguments():
     parser_hidmet.add_argument('station', nargs='*', default=[],
                                help='weather station abbreviation')
 
-    parser_metar_json = subparsers.add_parser('metar_json', help='metar JSON backend')
-    parser_metar_json.set_defaults(func=backend.metar_json.parse_args)
-    parser_metar_json.add_argument("-l", "--list",
-                                   help="list all supported weather stations",
-                                   action="store_true")
-    parser_metar_json.add_argument('station', nargs='*', default=[],
-                                   help='ICAO airport code')
-
-    parser_metar_xml = subparsers.add_parser('metar_xml', help='metar XML backend')
+    parser_metar_xml = subparsers.add_parser('metar_xml', help='aviationweather.gov METAR XML backend')
     parser_metar_xml.set_defaults(func=backend.metar_xml.parse_args)
     parser_metar_xml.add_argument("-l", "--list",
                                   help="list some of the supported weather stations",
                                   action="store_true")
     parser_metar_xml.add_argument('station', nargs='*', default=[],
                                   help='ICAO airport code')
+
+
+    parser_metar_json = subparsers.add_parser('metar_json', help='aviationweather.gov METAR JSON backend')
+    parser_metar_json.set_defaults(func=backend.metar_json.parse_args)
+    parser_metar_json.add_argument("-l", "--list",
+                                   help="list all supported weather stations",
+                                   action="store_true")
+    parser_metar_json.add_argument('station', nargs='*', default=[],
+                                   help='ICAO airport code')
 
     args = parser.parse_args()
 
