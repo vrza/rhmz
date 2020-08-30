@@ -11,6 +11,7 @@ import frontend.terminal
 
 EXIT_SUCCESS = 0
 EXIT_UNKNOWN_BACKEND = 1
+EXIT_NO_REPORTS = 4
 
 
 def parse_arguments():
@@ -59,4 +60,7 @@ except Exception:
 
 reports, header = fetch_reports(stations)
 
-frontend.terminal.render_and_output(reports, header)
+if reports:
+    frontend.terminal.render_and_output(reports, header)
+else:
+    sys.exit(EXIT_NO_REPORTS)
