@@ -27,17 +27,16 @@ def get_condition_code(cover):
 
 
 def get_xml(stations):
-    ids = set(map(lambda x: x.upper(), stations))
     url = 'https://www.aviationweather.gov/adds/dataserver_current/httpparam?datasource=metars&requestType=retrieve&format=xml&mostRecentForEachStation=constraint&hoursBeforeNow=2'
-    if ids:
-        url += '&stationString=' + ','.join(ids)
+    if stations:
+        url += '&stationString=' + ','.join(stations)
     response = requests.get(url)
     if response.status_code == 400:
         print('Could not retrieve data from METAR XML API (400 Bad request)', file=sys.stderr)
         print('> GET %s' % url, file=sys.stderr)
         print(response.text, file=sys.stderr)
-        if ids and len(ids) > 1000:
-            print('Number of stations requested (%s) might be over the GET request size limit' % len(ids),
+        if stations and len(stations) > 1000:
+            print('Number of stations requested (%s) might be over the GET request size limit' % len(stations),
                   file=sys.stderr)
         sys.exit(EXIT_BAD_REQUEST)
     return response
@@ -105,4 +104,5 @@ def parse_args(args):
         print_stations_list()
         sys.exit(EXIT_SUCCESS)
     module_name = vars(sys.modules[__name__])['__name__']
-    return module_name, args.station
+    stations = set(map(lambda x: x.upper(), args.station))
+    return module_name, stations

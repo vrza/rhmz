@@ -62,13 +62,12 @@ def parse_json(content):
 
 
 def filter_reports(all_reports, stations):
-    station_set = set(map(lambda x: x.upper(), stations))
     report_set = set(map(lambda x: x['id'], all_reports))
-    unavailable_stations = station_set.difference(report_set)
+    unavailable_stations = stations.difference(report_set)
     if unavailable_stations:
         print("Some stations you requested are not available via this backend: %s"
               % ",".join(unavailable_stations), file=sys.stderr)
-    return list(filter(lambda x: x['id'] in station_set, all_reports)) if stations \
+    return list(filter(lambda x: x['id'] in stations, all_reports)) if stations \
         else all_reports
 
 
@@ -96,4 +95,5 @@ def parse_args(args):
         print_stations_list()
         sys.exit(EXIT_SUCCESS)
     module_name = vars(sys.modules[__name__])['__name__']
-    return module_name, args.station
+    stations = set(map(lambda x: x.upper(), args.station))
+    return module_name, stations

@@ -132,7 +132,7 @@ def fetch(stations):
 
 
 def get_stations_by_abbrs(abbrs):
-    return list(map(lambda x: STATIONS[x], abbrs))
+    return set(map(lambda x: STATIONS[x.lower()], abbrs))
 
 
 def print_stations_list():
