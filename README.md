@@ -20,4 +20,4 @@ backend | description
 
 ## Which backend should I use?
 
-Try metar_xml, it supports thousands of ICAO airport codes.
+Try `metar_xml`, it supports thousands of ICAO airport codes.
