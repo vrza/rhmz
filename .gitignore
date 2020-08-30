@@ -1,2 +1,7 @@
-*.swp
+# python
+__pycache__/
+*.pyc
+
+# editor
 .idea/
+*.swp
