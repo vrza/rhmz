@@ -13,7 +13,11 @@ A weather report in your terminal.
 backend | description
 ---- | ----
 `hidmet` | hidmet.gov.rs backend
-`metar_xml` | aviationweather.gov METAR XML backend, supports thousands of sites
+`metar_xml` | aviationweather.gov METAR XML backend
 `metar_json` | aviationweather.gov METAR JSON backend
 
 `rhmz <backend> -h` shows help for a particular backend
+
+## Which backend should I use?
+
+Try metar_xml, it supports thousands of ICAO airport codes.
