@@ -62,7 +62,7 @@ def parse_xml(content):
             report['data'].append(('Dew point', dewpoint_c[0], '°C'))
         wind_dir_degrees = element.xpath('.//wind_dir_degrees//text()')
         if wind_dir_degrees:
-            report['data'].append(('Wind direction', wind_dir_degrees[0], '°'))
+            report['data'].append(('Wind dir.', wind_dir_degrees[0], '°'))
         wind_speed_kt = element.xpath('.//wind_speed_kt//text()')
         if wind_speed_kt:
             report['data'].append(('Wind speed', wind_speed_kt[0], 'kn'))
