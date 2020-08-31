@@ -34,7 +34,6 @@ def parse_arguments():
     parser_metar_xml.add_argument('station', nargs='*', default=[],
                                   help='ICAO airport code')
 
-
     parser_metar_json = subparsers.add_parser('metar_json', help='aviationweather.gov METAR JSON backend')
     parser_metar_json.set_defaults(func=backend.metar_json.parse_args)
     parser_metar_json.add_argument("-l", "--list",
