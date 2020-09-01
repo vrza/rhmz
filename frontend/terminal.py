@@ -176,11 +176,9 @@ def get_art_for_data(weather_data):
 
 
 def render_table(weather_data, height_pad, label_pad, value_pad):
-    # prepare table
-    tbl = []
-    # fill table
     unpadded_art = get_art_for_data(weather_data)
     ascii_art = vertical_pad_art(unpadded_art, height_pad)
+    tbl = []
     for i in range(height_pad):
         if i < len(weather_data['data']):
             label, value, unit = weather_data['data'][i]
