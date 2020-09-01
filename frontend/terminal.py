@@ -190,7 +190,7 @@ def render_table(weather_data, height_pad, label_pad, value_pad):
         else:
             ascii_art_row = value_row = label_row = ''
         tbl.append([ascii_art_row, label_row, value_row])
-    table = tabulate(tbl, tablefmt='fancy_outline')
+    table = tabulate(tbl, tablefmt='fancy_outline', preserve_whitespace=True)
     return table.splitlines()
 
 

@@ -68,9 +68,6 @@ __version__ = "0.8.8"
 # minimum extra space in headers
 MIN_PADDING = 2
 
-# Whether or not to preserve leading/trailing whitespace in data.
-PRESERVE_WHITESPACE = True
-
 _DEFAULT_FLOATFMT = "g"
 _DEFAULT_MISSINGVAL = ""
 
@@ -786,13 +783,13 @@ def _choose_width_fn(has_invisible, enable_widechars, is_multiline):
     return width_fn
 
 
-def _align_column_choose_padfn(strings, alignment, has_invisible):
+def _align_column_choose_padfn(strings, alignment, has_invisible, preserve_whitespace):
     if alignment == "right":
-        if not PRESERVE_WHITESPACE:
+        if not preserve_whitespace:
             strings = [s.strip() for s in strings]
         padfn = _padleft
     elif alignment == "center":
-        if not PRESERVE_WHITESPACE:
+        if not preserve_whitespace:
             strings = [s.strip() for s in strings]
         padfn = _padboth
     elif alignment == "decimal":
@@ -806,7 +803,7 @@ def _align_column_choose_padfn(strings, alignment, has_invisible):
     elif not alignment:
         padfn = _padnone
     else:
-        if not PRESERVE_WHITESPACE:
+        if not preserve_whitespace:
             strings = [s.strip() for s in strings]
         padfn = _padright
     return strings, padfn
@@ -819,9 +816,10 @@ def _align_column(
     has_invisible=True,
     enable_widechars=False,
     is_multiline=False,
+    preserve_whitespace=False
 ):
     """[string] -> [padded_string]"""
-    strings, padfn = _align_column_choose_padfn(strings, alignment, has_invisible)
+    strings, padfn = _align_column_choose_padfn(strings, alignment, has_invisible, preserve_whitespace)
     width_fn = _choose_width_fn(has_invisible, enable_widechars, is_multiline)
 
     s_widths = list(map(width_fn, strings))
@@ -1162,6 +1160,7 @@ def tabulate(
     showindex="default",
     disable_numparse=False,
     colalign=None,
+    preserve_whitespace=False
 ):
     """Format a fixed width table for pretty printing.
 
@@ -1524,7 +1523,7 @@ def tabulate(
         [width_fn(h) + min_padding for h in headers] if headers else [0] * len(cols)
     )
     cols = [
-        _align_column(c, a, minw, has_invisible, enable_widechars, is_multiline)
+        _align_column(c, a, minw, has_invisible, enable_widechars, is_multiline, preserve_whitespace)
         for c, a, minw in zip(cols, aligns, minwidths)
     ]
 
