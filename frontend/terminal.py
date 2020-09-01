@@ -1,7 +1,11 @@
 import math
 import os
 
-import prettytable
+import wcwidth
+from frontend.lib.tabulate import tabulate
+
+
+ART_BOX_WIDTH = 15
 
 
 def get_ascii_art_cond(code):
@@ -157,7 +161,7 @@ def get_ascii_art_cond(code):
     return codes[code]
 
 
-def pad_art(art, height):
+def vertical_pad_art(art, height):
     diff = height - len(art)
     if diff < 0:
         return art[0:height]
@@ -166,28 +170,28 @@ def pad_art(art, height):
     return ['']*top_pad + art + ['']*bottom_pad
 
 
+def get_art_for_data(weather_data):
+    cond_code = weather_data['condition'] if 'condition' in weather_data else 'CodeUnknown'
+    return get_ascii_art_cond(cond_code)
+
+
 def render_table(weather_data, height_pad, label_pad, value_pad):
     # prepare table
-    tbl = prettytable.PrettyTable()
-    tbl.field_names = ['ascii', 'name', 'value']
-    tbl.header = False
-    tbl.align['ascii'] = 'l'
-    tbl.align['name'] = 'l'
-    tbl.align['value'] = 'l'
+    tbl = []
     # fill table
-    cond_code = weather_data['condition'] if 'condition' in weather_data else 'CodeUnknown'
-    art = get_ascii_art_cond(cond_code)
-    ascii_art = pad_art(art, height_pad)
+    unpadded_art = get_art_for_data(weather_data)
+    ascii_art = vertical_pad_art(unpadded_art, height_pad)
     for i in range(height_pad):
         if i < len(weather_data['data']):
             label, value, unit = weather_data['data'][i]
             value_row = f'{value} {unit}'.ljust(value_pad)
             label_row = label.ljust(label_pad)
+            ascii_art_row = ascii_art[i].ljust(ART_BOX_WIDTH)
         else:
-            value_row = label_row = ''
-        ascii_art_row = ascii_art[i] if i < len(ascii_art) else ''
-        tbl.add_row([ascii_art_row, label_row, value_row])
-    return tbl.get_string().splitlines()
+            ascii_art_row = value_row = label_row = ''
+        tbl.append([ascii_art_row, label_row, value_row])
+    table = tabulate(tbl, tablefmt='fancy_outline')
+    return table.splitlines()
 
 
 def terminal_size():
@@ -205,12 +209,13 @@ def table_padding(reports):
             max_height = len(data)
         for item in data:
             label, value, unit = item
-            label_width = len(label)
+            label_width = wcwidth.wcswidth(label)
             if label_width > max_label_width:
                 max_label_width = label_width
-            value_width = len(f'{value} {unit}')
+            value_width = wcwidth.wcswidth(f'{value} {unit}')
             if value_width > max_value_width:
                 max_value_width = value_width
+
     return max_height, max_label_width, max_value_width
 
 
@@ -222,9 +227,10 @@ def render_tables(reports):
 def max_table_width(tables):
     max_width = 0
     for table in tables:
-        line = table[0]
-        if len(line) > max_width:
-            max_width = len(line)
+        if table:
+            line = table[0]
+            if wcwidth.wcswidth(line) > max_width:
+                max_width = wcwidth.wcswidth(line)
     return max_width
 
 
