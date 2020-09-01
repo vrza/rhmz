@@ -228,20 +228,26 @@ def max_table_width(tables):
     return max_width
 
 
+def cells_in_row(total_cells, cells_per_row, row):
+    num_rows = math.ceil(total_cells / cells_per_row)
+    cells_in_last_row = total_cells - cells_per_row * (num_rows - 1)
+    return cells_per_row if row < num_rows - 1 else cells_in_last_row
+
+
 def output_tables(tables):
     width_of_table = max_table_width(tables)
     if width_of_table == 0:
         return
     _, terminal_columns = terminal_size()
+    num_tables = len(tables)
     tables_per_row = math.floor(terminal_columns / width_of_table)
-    num_rows = math.ceil(len(tables) / tables_per_row)
+    num_rows = math.ceil(num_tables / tables_per_row)
     lines_per_table = len(tables[0])
     for row_index in range(num_rows):
         for line_index in range(lines_per_table):
-            for cell_offset in range(tables_per_row):
+            for cell_offset in range(cells_in_row(num_tables, tables_per_row, row_index)):
                 table_index = row_index * tables_per_row + cell_offset
-                if table_index < len(tables):
-                    print(tables[table_index][line_index], end='')
+                print(tables[table_index][line_index], end='')
             print()
 
 
