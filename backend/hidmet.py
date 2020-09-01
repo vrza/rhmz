@@ -51,13 +51,15 @@ def is_int(string):
 def get_condition_code(language, condition):
     mapping = {
         'sr': {
-            'Ведро':             'CodeSunny',
-            'Делимично облачно': 'CodePartlyCloudy',
-            'Магла':             'CodeFog',
-            'Облачно':           'CodeCloudy',
-            'Претежно ведро':    'CodeMostlySunny',
-            'Претежно облачно':  'CodeMostlyCloudy',
-            'Слаба киша':        'CodeLightRain'
+            'Ведро':              'CodeSunny',
+            'Делимично облачно':  'CodePartlyCloudy',
+            'Грмљавина':          'CodeThunderyShowers',
+            'Грмљавина са кишом': 'CodeThunderyHeavyRain',
+            'Магла':              'CodeFog',
+            'Облачно':            'CodeCloudy',
+            'Претежно ведро':     'CodeMostlySunny',
+            'Претежно облачно':   'CodeMostlyCloudy',
+            'Слаба киша':         'CodeLightRain'
         }
     }
     return mapping[language][condition]
