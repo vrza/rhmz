@@ -2,7 +2,7 @@ import math
 import os
 
 import wcwidth
-from frontend.lib.tabulate import tabulate
+from frontend.lib.tabulate.tabulate import tabulate
 
 
 ART_BOX_WIDTH = 15
