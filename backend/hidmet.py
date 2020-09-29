@@ -59,7 +59,8 @@ def get_condition_code(language, condition):
             'Облачно':            'CodeCloudy',
             'Претежно ведро':     'CodeMostlySunny',
             'Претежно облачно':   'CodeMostlyCloudy',
-            'Слаба киша':         'CodeLightRain'
+            'Слаба киша':         'CodeLightRain',
+            'Умерена киша':       'CodeHeavyRain'
         }
     }
     return mapping[language][condition]
