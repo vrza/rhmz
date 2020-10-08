@@ -6,6 +6,7 @@ from frontend.lib.tabulate.tabulate import tabulate
 
 
 ART_BOX_WIDTH = 15
+MAX_ART_HEIGHT = 5
 
 
 def get_ascii_art_cond(code):
@@ -180,13 +181,13 @@ def render_table(weather_data, height_pad, label_pad, value_pad):
     ascii_art = vertical_pad_art(unpadded_art, height_pad)
     tbl = []
     for i in range(height_pad):
+        ascii_art_row = ascii_art[i].ljust(ART_BOX_WIDTH)
         if i < len(weather_data['data']):
             label, value, unit = weather_data['data'][i]
             value_row = f'{value} {unit}'.ljust(value_pad)
             label_row = label.ljust(label_pad)
-            ascii_art_row = ascii_art[i].ljust(ART_BOX_WIDTH)
         else:
-            ascii_art_row = value_row = label_row = ''
+            value_row = label_row = ''
         tbl.append([ascii_art_row, label_row, value_row])
     table = tabulate(tbl, tablefmt='fancy_outline', preserve_whitespace=True)
     return table.splitlines()
@@ -200,7 +201,7 @@ def terminal_size():
 def table_padding(reports):
     max_label_width = 0
     max_value_width = 0
-    max_height = 0
+    max_height = MAX_ART_HEIGHT
     for report in reports:
         data = report['data']
         if len(data) > max_height:
