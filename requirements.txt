@@ -1,5 +1,5 @@
 # Tested with
 
 lxml >=4.5.2, <4.7
-requests >=2.24.0, <2.25
+requests >=2.24.0, <2.26
 wcwidth >=0.2.5, <0.3
