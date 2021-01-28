@@ -64,7 +64,8 @@ def get_condition_code(language, condition):
             'Росуља (сипећа киша)': 'CodeLightRain',
             'Сумаглица':            'CodeFog',
             'Слаб снег':            'CodeLightSnow',
-            'Умерен снег':          'CodeHeavySnow'
+            'Умерен снег':          'CodeHeavySnow',
+            'Снежна мећава':        'CodeHeavySnow'
         }
     }
     return mapping[language][condition]
