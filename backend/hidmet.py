@@ -63,6 +63,7 @@ def get_condition_code(language, condition):
             'Умерена киша':         'CodeHeavyRain',
             'Росуља (сипећа киша)': 'CodeLightRain',
             'Сумаглица':            'CodeFog',
+            'Суснежица':            'CodeLightSnow',
             'Слаб снег':            'CodeLightSnow',
             'Умерен снег':          'CodeHeavySnow',
             'Снежна мећава':        'CodeHeavySnow'
