@@ -1,8 +1,9 @@
 import math
 import os
 
+import tabulate as tabulate_module
+from tabulate import tabulate
 import wcwidth
-from frontend.lib.tabulate.tabulate import tabulate
 
 
 ART_BOX_WIDTH = 15
@@ -189,7 +190,13 @@ def render_table(weather_data, height_pad, label_pad, value_pad):
         else:
             value_row = label_row = ''
         tbl.append([ascii_art_row, label_row, value_row])
-    table = tabulate(tbl, tablefmt='fancy_outline', preserve_whitespace=True)
+    # TODO wait for merge of upstream PR
+    # https://github.com/astanin/python-tabulate/pull/79
+    # in tabulate 0.9, to get rid of monkey patching
+    tabulate_module.PRESERVE_WHITESPACE = True
+    table = tabulate(tbl, tablefmt='fancy_outline')
+    tabulate_module.PRESERVE_WHITESPACE = False
+    #table = tabulate(tbl, tablefmt='fancy_outline', preserve_whitespace=True)
     return table.splitlines()
 
 
