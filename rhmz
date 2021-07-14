@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import signal
 import sys
 
 import backend.hidmet
@@ -12,7 +13,11 @@ import frontend.terminal
 EXIT_SUCCESS = 0
 EXIT_UNKNOWN_BACKEND = 1
 EXIT_NO_REPORTS = 4
+EXIT_BROKEN_PIPE = 141
 
+
+def sigpipe_handler():
+    sys.exit(EXIT_BROKEN_PIPE);
 
 def parse_arguments():
     parser = argparse.ArgumentParser(prog='rhmz')
@@ -47,6 +52,8 @@ def parse_arguments():
     return args.func(args) if 'func' in args \
         else ('backend.hidmet', backend.hidmet.get_stations_by_abbrs(['bg']))
 
+
+signal.signal(signal.SIGPIPE, sigpipe_handler)
 
 selected_backend, stations = parse_arguments()
 
