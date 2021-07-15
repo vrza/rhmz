@@ -200,11 +200,6 @@ def render_table(weather_data, height_pad, label_pad, value_pad):
     return table.splitlines()
 
 
-def terminal_size():
-    rows, columns = os.popen('stty size', 'r').read().split()
-    return int(rows), int(columns)
-
-
 def table_padding(reports):
     max_label_width = 0
     max_value_width = 0
@@ -240,6 +235,16 @@ def max_table_width(tables):
     return max_width
 
 
+def terminal_size():
+    rows, columns = os.popen('stty size', 'r').read().split()
+    return int(rows), int(columns)
+
+
+def tables_per_terminal_row(width_of_table):
+    _, terminal_columns = terminal_size()
+    return math.floor(terminal_columns / width_of_table)
+
+
 def cells_in_row(total_cells, cells_per_row, row):
     num_rows = math.ceil(total_cells / cells_per_row)
     cells_in_last_row = total_cells - cells_per_row * (num_rows - 1)
@@ -250,9 +255,8 @@ def output_tables(tables):
     width_of_table = max_table_width(tables)
     if width_of_table == 0:
         return
-    _, terminal_columns = terminal_size()
     num_tables = len(tables)
-    tables_per_row = math.floor(terminal_columns / width_of_table)
+    tables_per_row = tables_per_terminal_row(width_of_table)
     num_rows = math.ceil(num_tables / tables_per_row)
     lines_per_table = len(tables[0])
     for row_index in range(num_rows):
