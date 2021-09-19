@@ -1,6 +1,6 @@
 # Tested with
 
 lxml >=4.5.2, <4.7
-requests >=2.24.0, <2.26
+requests >=2.24.0, <2.27
 tabulate >=0.8.9 <0.9
 wcwidth >=0.2.5, <0.3
