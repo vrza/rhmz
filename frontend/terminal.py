@@ -1,6 +1,9 @@
+import fcntl
 import math
 import os
+import struct
 import sys
+import termios
 
 import tabulate as tabulate_module
 from tabulate import tabulate
@@ -237,9 +240,9 @@ def max_table_width(tables):
 
 
 def terminal_size():
-    if sys.stdin.isatty():
-        rows, columns = os.popen('stty size', 'r').read().split()
-        return int(rows), int(columns)
+    if sys.stdout.isatty():
+        packed = fcntl.ioctl(sys.stdout, termios.TIOCGWINSZ, struct.pack('HH', 0, 0))
+        return struct.unpack('HH', packed)
     else:
         return 24, 80
 
