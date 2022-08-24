@@ -1,5 +1,6 @@
 import math
 import os
+import sys
 
 import tabulate as tabulate_module
 from tabulate import tabulate
@@ -236,8 +237,11 @@ def max_table_width(tables):
 
 
 def terminal_size():
-    rows, columns = os.popen('stty size', 'r').read().split()
-    return int(rows), int(columns)
+    if sys.stdin.isatty():
+        rows, columns = os.popen('stty size', 'r').read().split()
+        return int(rows), int(columns)
+    else:
+        return 24, 80
 
 
 def tables_per_terminal_row(width_of_table):
