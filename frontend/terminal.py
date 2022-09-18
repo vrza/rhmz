@@ -249,7 +249,7 @@ def terminal_size():
 
 def tables_per_terminal_row(width_of_table):
     _, terminal_columns = terminal_size()
-    return math.floor(terminal_columns / width_of_table)
+    return max(math.floor(terminal_columns / width_of_table), 1)
 
 
 def cells_in_row(total_cells, cells_per_row, row):
