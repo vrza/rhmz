@@ -194,9 +194,10 @@ def render_table(weather_data, height_pad, label_pad, value_pad):
         else:
             value_row = label_row = ''
         tbl.append([ascii_art_row, label_row, value_row])
-    # TODO wait for merge of upstream PR
+    # TODO To get rid of monkey paching, # wait for the upstream PR
     # https://github.com/astanin/python-tabulate/pull/79
-    # in tabulate 0.9, to get rid of monkey patching
+    # to get merged. Hopefully this might happen in some future release
+    # of tabulate
     tabulate_module.PRESERVE_WHITESPACE = True
     table = tabulate(tbl, tablefmt='fancy_outline')
     tabulate_module.PRESERVE_WHITESPACE = False
