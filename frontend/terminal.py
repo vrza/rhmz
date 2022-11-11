@@ -194,7 +194,7 @@ def render_table(weather_data, height_pad, label_pad, value_pad):
         else:
             value_row = label_row = ''
         tbl.append([ascii_art_row, label_row, value_row])
-    # TODO To get rid of monkey paching, # wait for the upstream PR
+    # TODO To get rid of monkey paching, wait for the upstream PR
     # https://github.com/astanin/python-tabulate/pull/79
     # to get merged. Hopefully this might happen in some future release
     # of tabulate
