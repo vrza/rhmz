@@ -9,9 +9,10 @@ import requests
 EXIT_SUCCESS = 0
 EXIT_NETWORK_ERROR = 2
 EXIT_BAD_REQUEST = 3
+EXIT_PARSING_ERROR = 4
 
 
-def get_condition_code(cover):
+def get_condition_code(cover: str) -> str:
     mapping = {
         'CLR': 'CodeSunny',
         'SKC': 'CodeSunny',
@@ -26,7 +27,7 @@ def get_condition_code(cover):
     return mapping[cover]
 
 
-def get_json(stations):
+def get_json(stations: list[str]) -> str:
     url = 'https://www.aviationweather.gov/api/data/metar?format=json'
     if stations:
         url += "&ids=" + ",".join(stations)
@@ -42,10 +43,14 @@ def get_json(stations):
 
 
 def parse_json(content: str) -> list:
-    weather = json.loads(content)
+    try:
+        weather = json.loads(content)
+    except ValueError:
+        print('Error parsing API response', file=sys.stderr)
+        sys.exit(EXIT_PARSING_ERROR)
+
     reports = []
     for station in weather:
-        print(station)
         report = {'data': []}
         if 'name' in station:
             report['site'] = station['name']
@@ -91,7 +96,7 @@ def filter_reports(all_reports, stations):
         else all_reports
 
 
-def fetch(stations):
+def fetch(stations: list[str]):
     try:
         response = get_json(stations)
     except Exception:
