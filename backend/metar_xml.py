@@ -31,8 +31,8 @@ def get_xml(stations):
     if stations:
         url += '&stationString=' + ','.join(stations)
     response = requests.get(url)
-    if response.status_code == 400:
-        print('Could not retrieve data from METAR XML API (400 Bad request)', file=sys.stderr)
+    if response.status_code >= 400:
+        print('Could not retrieve data from METAR XML API (status code %s)' % response.status_code, file=sys.stderr)
         print('> GET %s' % url, file=sys.stderr)
         print(response.text, file=sys.stderr)
         if stations and len(stations) > 1000:
