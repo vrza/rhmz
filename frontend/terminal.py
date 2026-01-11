@@ -1,9 +1,5 @@
-import fcntl
 import math
-import os
-import struct
-import sys
-import termios
+import shutil
 
 import tabulate as tabulate_module
 from tabulate import tabulate
@@ -240,19 +236,9 @@ def max_table_width(tables):
     return max_width
 
 
-def terminal_size():
-    if sys.stdout.isatty():
-        ws_buffer = struct.pack('HHHH', 0, 0, 0, 0)
-        packed = fcntl.ioctl(sys.stdout, termios.TIOCGWINSZ, ws_buffer)
-        ws_row, ws_col, _ws_xpixel, _ws_ypixel = struct.unpack('HHHH', packed)
-        return ws_row, ws_col
-    else:
-        return 24, 80
-
-
 def tables_per_terminal_row(width_of_table):
-    _, terminal_columns = terminal_size()
-    return max(math.floor(terminal_columns / width_of_table), 1)
+    terminal_size = shutil.get_terminal_size()
+    return max(math.floor(terminal_size.columns / width_of_table), 1)
 
 
 def cells_in_row(total_cells, cells_per_row, row):
