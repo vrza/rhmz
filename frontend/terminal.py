@@ -242,8 +242,10 @@ def max_table_width(tables):
 
 def terminal_size():
     if sys.stdout.isatty():
-        packed = fcntl.ioctl(sys.stdout, termios.TIOCGWINSZ, struct.pack('HH', 0, 0))
-        return struct.unpack('HH', packed)
+        ws_buffer = struct.pack('HHHH', 0, 0, 0, 0)
+        packed = fcntl.ioctl(sys.stdout, termios.TIOCGWINSZ, ws_buffer)
+        ws_row, ws_col, _ws_xpixel, _ws_ypixel = struct.unpack('HHHH', packed)
+        return ws_row, ws_col
     else:
         return 24, 80
 
